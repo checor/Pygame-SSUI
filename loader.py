@@ -15,14 +15,22 @@ import os
 size = width, height = 320, 240 #Elegimos el tamaño de la pantalla
 surface = pygame.display.set_mode(size) #Pantalla completa a futuro
 pygame.display.set_caption("Newtech Software") #Nombre de la ventana
+clock = pygame.time.Clock()
 
 """
 Variables para pygame
 Estas seran movidas a un libreria mas adelante
 """
 #Colores
-Color = {"Black" : (0,0,0) , "White" : (255,255,255) , "Red" : (255,0,0),
-          "Green" : (0,255,0) , "Blue" : (0,0,255), "Orange" : (255,144,0)}
+#Color = {"Black" : (0,0,0) , "White" : (255,255,255) , "Red" : (255,0,0),
+#          "Green" : (0,255,0) , "Blue" : (0,0,255), "Orange" : (255,144,0)}
+
+#Colores de Firefox OS
+Color = {"Blue" : (0, 170, 204) , "Orange" : (255,78,0) , "Brick" :
+			   (205,103,35) , "Red" : (185,0,0) , "Green" : (95,155,10),
+			   "Black" : (0,0,0) , "Warm grey" : (51,51,51) , "Warm Grey" :
+			   (44,57,59) , "Light grey" : (244,244,244) , "Ivory" : 
+			   (234,234,231) , "White" : (255,255,255) }
 #Fuentes
 pygame.init()
 noFont = pygame.font.SysFont(None, 8)
@@ -68,7 +76,7 @@ class Cuadro:
     """Clase padre de una pantalla. Lleva todos sus atributos"""
     Count = 0
     names = []
-    def __init__(self, nombre, color, pos = (0,0,0,0)):
+    def __init__(self, nombre, color, pos = (0,0,0,0), rounded = False):
         print "Cuadro creado: ", nombre
         Cuadro.Count = Cuadro.Count + 1
         Cuadro.names.append(nombre)
@@ -77,6 +85,7 @@ class Cuadro:
         self.color = color
         self.gotText = False
         self.gotImage = False
+        self.rounded = rounded
     def get_text(self, texto, tamano, fuente, color, pos=0):
         """Obtiene tiene texto para mostrar. En la varibale pos,
         0 es centrado, 1 es derecha, 2 es izquierda"""
@@ -109,9 +118,13 @@ class Cuadro:
     def drawimage(self):
         pass
     def draw(self):
-        pygame.draw.rect(surface, self.color, self.pos)
-        self.drawtext()
-        self.drawimage()
+		#Cambiar esto a otro tipo de rectangulo
+		if not self.rounded:
+			pygame.draw.rect(surface, self.color, self.pos)
+			self.drawtext()
+			self.drawimage()
+		else:
+			pass
 
 class Boton(Cuadro):
     """Crea un boton intereactivo en la pantalla. Puede tener diferentes
@@ -197,9 +210,9 @@ def main():
     loadtemplate('test.xml')
     pygame.display.update()
     #pantallas[0].
+    time = clock.tick(30)
     running = True
     while running:
-        pygame.time.wait(10) #Debe ser variable
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
