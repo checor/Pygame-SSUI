@@ -1,0 +1,40 @@
+<!-- Ejemplo de XML para implementarse en el display de la pantalla -->
+<!-- Experimental -->
+<Pantalla>
+    <Caja Nombre="Caja 1">
+        <Alto>50</Alto>
+        <Color>Blue</Color>
+        <Ancho>240</Ancho>
+        <PosX>0</PosX>
+        <PosY>0</PosY>
+        <Margen>
+            <Tamano>10</Tamano>
+            <Color>Negro</Color>
+        </Margen>
+        <Texto>
+            <Fuente>Arial</Fuente>
+            <Centrado>No</Centrado>
+            <Tamano>38</Tamano>
+            <Text>Gas chido</Text>
+            <Color>White</Color>
+        </Texto>
+   </Caja>
+   <Caja Nombre="Caja 2">
+        <Alto>90</Alto>
+        <Ancho>140</Ancho>
+        <PosX>150</PosX>
+        <PosY>150</PosY>
+        <Color>Orange</Color>
+        <Margen>
+            <Tamano>15</Tamano>
+            <Color>Blanco</Color>
+        </Margen>
+        <Texto>
+            <Fuente>None</Fuente>
+            <Centrado>Si</Centrado>
+            <Tamano>32</Tamano>
+            <Text>Promo: 1x2</Text>
+            <Color>White</Color>
+        </Texto>
+    </Caja>
+</Pantalla>
