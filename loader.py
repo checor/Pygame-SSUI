@@ -4,7 +4,7 @@ Created on Thu Jul 10 19:24:52 2014
 
 @author: @checor
 
-
+Usando el martillo que tengo para un chingo de clavos
 """
 
 import pygame, sys
