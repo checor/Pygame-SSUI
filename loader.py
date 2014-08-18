@@ -121,28 +121,29 @@ class Cuadro:
         self.name = nombre
         self.pos = pos
         self.color = color
-        self.gotText = False
         self.gotImage = False
         self.rounded = rounded
+        self.textos = []
+        self.imagenes = []
     def get_text(self, texto, tamano, fuente, color, pos=0):
         """Obtiene tiene texto para mostrar. En la varibale pos,
         0 es centrado, 1 es derecha, 2 es izquierda"""
-        self.gotText = True
         self.tt = str(texto)
         self.ttam = tamano
         self.tf = fuente
         self.tpos = pos
         self.tcol = color
+        #Cambio a lo que son tuplas con atributos
+        self.textos.append((str(texto), tamano, fuente, pos, color))
     def hay_text(self):
-        return self.gotText
+        return len(self.textos)
     def drawtext(self):
-        """Dibuja en la pantalla el texto que tiene el cuadro"""
-        #Falta agregar todo lo relacionado con la posicion
-        if self.gotText:
-            f = pygame.font.Font(get_font(self.tf), self.ttam)
-            pgtext = f.render(self.tt, 1, (0,0,0))
+        for elem in self.textos:
+            f = pygame.font.Font(get_font(elem[2]), elem[1])
+            pgtext = f.render(elem[0], 1, (0,0,0))
             pgrect = pgtext.get_rect()
-            pgrect.topleft = (self.pos[0], self.pos[1]) #Primitivo
+            #pgrect.topleft = (elem[3]) #Primitivo
+            pgrect.topleft = (self.pos[0], self.pos[1])
             surface.blit(pgtext, pgrect)
     def get_image(self, imagepath, posx = 0, posy = 0):
         #Checar primero si existe el path
