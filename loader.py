@@ -21,20 +21,58 @@ clock = pygame.time.Clock()
 Variables para pygame
 Estas seran movidas a un libreria mas adelante
 """
-#Colores
-#Color = {"Black" : (0,0,0) , "White" : (255,255,255) , "Red" : (255,0,0),
-#          "Green" : (0,255,0) , "Blue" : (0,0,255), "Orange" : (255,144,0)}
 
-#Colores de Firefox OS
-Color = {"Blue" : (0, 170, 204) , "Orange" : (255,78,0) , "Brick" :
-			   (205,103,35) , "Red" : (185,0,0) , "Green" : (95,155,10),
-			   "Black" : (0,0,0) , "Warm grey" : (51,51,51) , "Warm Grey" :
-			   (44,57,59) , "Light grey" : (244,244,244) , "Ivory" : 
-			   (234,234,231) , "White" : (255,255,255) }
+#Colores de guia de Firefox OS
+colores = {"Blue" : (0, 170, 204) , "Orange" : (255,78,0) , "Brick" :
+               (205,103,35) , "Red" : (185,0,0) , "Green" : (95,155,10),
+               "Black" : (0,0,0) , "Warm grey" : (51,51,51) , "Warm Grey" :
+               (44,57,59) , "Light grey" : (244,244,244) , "Ivory" : 
+               (234,234,231) , "White" : (255,255,255) }
 #Fuentes
 pygame.init()
 noFont = pygame.font.SysFont(None, 8)
 """Fin de variables"""
+
+#Definiciones
+def RoundRect(surface,rect,color,radius=0.4):
+
+    """
+    AAfilledRoundedRect(surface,rect,color,radius=0.4)
+
+    surface : destination
+    rect    : rectangle
+    color   : rgb or rgba
+    radius  : 0 <= radius <= 1
+    """
+
+    rect         = Rect(rect)
+    color        = Color(*color)
+    alpha        = color.a
+    color.a      = 0
+    pos          = rect.topleft
+    rect.topleft = 0,0
+    rectangle    = pygame.Surface(rect.size,SRCALPHA)
+
+    circle       = pygame.Surface([min(rect.size)*3]*2,SRCALPHA)
+    pygame.draw.ellipse(circle,(0,0,0),circle.get_rect(),0)
+    circle       = pygame.transform.smoothscale(circle,[int(min(rect.size)*radius)]*2)
+
+    radius              = rectangle.blit(circle,(0,0))
+    radius.bottomright  = rect.bottomright
+    rectangle.blit(circle,radius)
+    radius.topright     = rect.topright
+    rectangle.blit(circle,radius)
+    radius.bottomleft   = rect.bottomleft
+    rectangle.blit(circle,radius)
+
+    rectangle.fill((0,0,0),rect.inflate(-radius.w,0))
+    rectangle.fill((0,0,0),rect.inflate(0,-radius.h))
+
+    rectangle.fill(color,special_flags=BLEND_RGBA_MAX)
+    rectangle.fill((255,255,255,alpha),special_flags=BLEND_RGBA_MIN)
+
+    return surface.blit(rectangle,pos)
+
 
 #Objetos globales
 pantallas = []
@@ -118,13 +156,14 @@ class Cuadro:
     def drawimage(self):
         pass
     def draw(self):
-		#Cambiar esto a otro tipo de rectangulo
-		if not self.rounded:
-			pygame.draw.rect(surface, self.color, self.pos)
-			self.drawtext()
-			self.drawimage()
-		else:
-			pass
+        #Cambiar esto a otro tipo de rectangulo
+        if not self.rounded:
+            pygame.draw.rect(surface, self.color, self.pos)
+            self.drawtext()
+            self.drawimage()
+        else:
+            RoundRect(surface, self.pos, self.color)
+            self.drawtext()
 
 class Boton(Cuadro):
     """Crea un boton intereactivo en la pantalla. Puede tener diferentes
@@ -156,19 +195,19 @@ def get_font(font): #Esta debe ir en el import
         return None
 
 def get_color(color):
-    global Color
-    color = Color[color]
+    global colores
+    color = colores[color]
     return color
         
 def loadtemplate(filename): #Idem
     global pantallas
-    global Color
+    global colores
     global noFont
     tree = ET.parse(filename)
     root = tree.getroot()
     if root.tag == "Pantalla":
             print "Abirendo " + root.tag
-            p = Pantalla("main", Color['White'])
+            p = Pantalla("main", colores['White'])
             pantallas.append(p)
             for child in root.findall("Caja"):
                 print "Caja encontrada! Nombre: " + child.attrib['Nombre']
@@ -186,7 +225,7 @@ def loadtemplate(filename): #Idem
                 print posc
                 color = child.find('Color').text
                 color = get_color(color)
-                c = Cuadro(str(child.attrib['Nombre']), color,  posc)
+                c = Cuadro(str(child.attrib['Nombre']), color,  posc, True)
                 pantallas[Pantalla.pCount - 1].adopt(c)
                 for t in child.findall("Texto"):
                     ttext = t.find("Text").text
@@ -206,7 +245,7 @@ def main():
     print "Newtech software"
     print "Inicializando...\n"
     #pygame.init()      #cambio temporal
-    surface.fill(Color['White'])
+    surface.fill(colores['White'])
     loadtemplate('test.xml')
     pygame.display.update()
     #pantallas[0].
