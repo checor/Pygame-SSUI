@@ -5,31 +5,33 @@
         <Alto>50</Alto>
         <Color>Blue</Color>
         <Ancho>240</Ancho>
-        <PosX>0</PosX>
+        <PosX>30</PosX>
         <PosY>0</PosY>
-        <Margen>
+        <Redondez>.4</Redondez>
+        <Margen> <!-- Aun no implementado -->
             <Tamano>10</Tamano>
             <Color>Negro</Color>
         </Margen>
         <Texto>
             <Fuente>Arial</Fuente>
-            <Centrado>No</Centrado>
+            <Centrado>No</Centrado><!-- Aun no implementado -->
             <Tamano>38</Tamano>
             <Text>    Gas chido</Text>
             <Color>White</Color>
         </Texto>
         <Imagen>
             <Filename>gas.png</Filename>
-            <PosX>0</PosX>
-            <PosY>0</PosY>
+            <PosX>10</PosX>
+            <PosY>8</PosY>
         </Imagen>
    </Caja>
    <Caja Nombre="Caja 2">
-        <Alto>90</Alto>
-        <Ancho>140</Ancho>
-        <PosX>150</PosX>
+        <Alto>40</Alto>
+        <Ancho>190</Ancho>
+        <PosX>30</PosX>
         <PosY>150</PosY>
         <Color>Orange</Color>
+        <Redondez>.2</Redondez>
         <Margen>
             <Tamano>15</Tamano>
             <Color>Blanco</Color>
@@ -38,7 +40,21 @@
             <Fuente>None</Fuente>
             <Centrado>Si</Centrado>
             <Tamano>32</Tamano>
-            <Text>Promo: 1x2</Text>
+            <Text> Promo: 1x2</Text>
+            <Color>White</Color>
+        </Texto>
+    </Caja>
+    <Caja Nombre="Caja 3">
+        <Alto>100</Alto>
+        <Ancho>320</Ancho>
+        <PosX>0</PosX>
+        <PosY>50</PosY>
+        <Color>Light grey</Color>
+        <Redondez>.4</Redondez>
+        <Texto>
+            <Fuente>digital-7</Fuente>
+            <Tamano>60</Tamano>
+            <Text>    $   0.00</Text>
             <Color>White</Color>
         </Texto>
     </Caja>

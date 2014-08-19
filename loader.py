@@ -25,7 +25,7 @@ Estas seran movidas a un libreria mas adelante
 #Colores de guia de Firefox OS
 colores = {"Blue" : (0, 170, 204) , "Orange" : (255,78,0) , "Brick" :
                (205,103,35) , "Red" : (185,0,0) , "Green" : (95,155,10),
-               "Black" : (0,0,0) , "Warm grey" : (51,51,51) , "Warm Grey" :
+               "Black" : (0,0,0) , "Warm grey" : (51,51,51) , "Warm grey" :
                (44,57,59) , "Light grey" : (244,244,244) , "Ivory" : 
                (234,234,231) , "White" : (255,255,255) }
 #Fuentes
@@ -93,7 +93,7 @@ def load_image(name, colorkey=None):
     except pygame.error, message:
         print 'No se pudo cargar la imamen: ', fullname
         raise SystemExit, message
-    #image = image.convert_alpha()
+    image = image.convert_alpha()
     return image, image.get_rect()
 
 #Objetos globales
@@ -117,9 +117,6 @@ class Pantalla:
         surface.Fill(Colors[self.color])
     def update(self):
         pygame.display.update()
-    def cuadrifica(self):
-        for hijo in self.hijos: 
-            pass
     def adopt(self, hijo):
         if isinstance(hijo, Cuadro) == True:
             print "Hijo", hijo.name, "creado"
@@ -137,7 +134,7 @@ class Cuadro:
     global surface
     Count = 0
     names = []
-    def __init__(self, nombre, color, pos = (0,0,0,0), rounded = False):
+    def __init__(self, nombre, color, pos = (0,0,0,0), rounded = 0):
         print "Cuadro creado: ", nombre
         Cuadro.Count = Cuadro.Count + 1
         Cuadro.names.append(nombre)
@@ -151,7 +148,6 @@ class Cuadro:
     def get_text(self, texto, tamano, fuente, color, pos=0):
         """Obtiene tiene texto para mostrar. En la varibale pos,
         0 es centrado, 1 es derecha, 2 es izquierda"""
-        #Cambio a lo que son tuplas con atributos
         self.textos.append((str(texto), tamano, fuente, pos, color))
     def hay_text(self):
         return len(self.textos)
@@ -160,7 +156,6 @@ class Cuadro:
             f = get_font(elem[2], elem[1])
             pgtext = f.render(elem[0], 1, (0,0,0))
             pgrect = pgtext.get_rect()
-            #pgrect.topleft = (elem[3]) #Primitivo
             pgrect.topleft = (self.pos[0], self.pos[1])
             surface.blit(pgtext, pgrect)
     def get_image(self, imagepath, posx = 0, posy = 0):
@@ -174,7 +169,6 @@ class Cuadro:
             surface.blit(elem[0], img_pos)
             pygame.display.flip()
     def draw(self):
-        #Cambiar esto a otro tipo de rectangulo
         if not self.rounded:
             pygame.draw.rect(surface, self.color, self.pos)
             self.drawtext()
@@ -233,7 +227,8 @@ def loadtemplate(filename): #Idem
                 print posc
                 color = child.find('Color').text
                 color = get_color(color)
-                c = Cuadro(str(child.attrib['Nombre']), color,  posc, True)
+                rounded = float(child.find('Redondez').text)
+                c = Cuadro(str(child.attrib['Nombre']), color,  posc, rounded)
                 pantallas[Pantalla.pCount - 1].adopt(c)
                 for t in child.findall("Texto"):
                     ttext = t.find("Text").text
@@ -241,14 +236,12 @@ def loadtemplate(filename): #Idem
                     tsize = int(t.find("Tamano").text)
                     tfont = t.find("Fuente").text
                     tcolor = t.find("Color").text
-                    tfont = None #Parche mamon
                     c.get_text(ttext, tsize, tfont, tcolor)
                 for imag in child.findall("Imagen"):
                     imagen = imag.find("Filename").text
                     img_posx = int(imag.find("PosX").text)
                     img_posy = int(imag.find("PosY").text)
                     c.get_image(imagen, img_posx, img_posy)
-            print "Awaken my masters"
             pantallas[0].awaken() #Awaken my masters
     else:
         print "XML inválido."
@@ -257,11 +250,9 @@ def main():
     global pantallas
     print "Newtech software"
     print "Inicializando...\n"
-    #pygame.init()      #cambio temporal
     surface.fill(colores['Ivory'])
     loadtemplate('test.xml')
     pygame.display.update()
-    #pantallas[0].
     time = clock.tick(30)
     running = True
     while running:
