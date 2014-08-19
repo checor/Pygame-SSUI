@@ -15,9 +15,14 @@
             <Fuente>Arial</Fuente>
             <Centrado>No</Centrado>
             <Tamano>38</Tamano>
-            <Text>Gas chido</Text>
+            <Text>    Gas chido</Text>
             <Color>White</Color>
         </Texto>
+        <Imagen>
+            <Filename>gas.png</Filename>
+            <PosX>0</PosX>
+            <PosY>0</PosY>
+        </Imagen>
    </Caja>
    <Caja Nombre="Caja 2">
         <Alto>90</Alto>

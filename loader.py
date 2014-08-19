@@ -2,9 +2,9 @@
 """
 Created on Thu Jul 10 19:24:52 2014
 
-@author: @checor
+@author: checor@gmail.com
 
-Usando el martillo que tengo para un chingo de clavos
+Gettin pumped
 """
 
 import pygame, sys
@@ -30,10 +30,23 @@ colores = {"Blue" : (0, 170, 204) , "Orange" : (255,78,0) , "Brick" :
                (234,234,231) , "White" : (255,255,255) }
 #Fuentes
 pygame.init()
+pygame.font.init()
 noFont = pygame.font.SysFont(None, 8)
+
+def get_font(font, size): #Esta debe ir en el import
+    if font == 'None':
+        return pygame.font.SysFont(None, size)
+    else:
+        try:
+            f = pygame.font.SysFont(font, size)
+        except:
+            print "Fuente ", font, " no encontrada"
+            return pygame.font.SysFont(None, size)
+        return f
 """Fin de variables"""
 
-#Definiciones
+#Definiciones realtivas a la pantalla
+
 def RoundRect(surface,rect,color,radius=0.4):
 
     """
@@ -73,6 +86,15 @@ def RoundRect(surface,rect,color,radius=0.4):
 
     return surface.blit(rectangle,pos)
 
+def load_image(name, colorkey=None):
+    fullname = os.path.join('data', name)
+    try:
+        image = pygame.image.load(fullname)
+    except pygame.error, message:
+        print 'No se pudo cargar la imamen: ', fullname
+        raise SystemExit, message
+    #image = image.convert_alpha()
+    return image, image.get_rect()
 
 #Objetos globales
 pantallas = []
@@ -112,6 +134,7 @@ class Pantalla:
 
 class Cuadro:
     """Clase padre de una pantalla. Lleva todos sus atributos"""
+    global surface
     Count = 0
     names = []
     def __init__(self, nombre, color, pos = (0,0,0,0), rounded = False):
@@ -128,34 +151,28 @@ class Cuadro:
     def get_text(self, texto, tamano, fuente, color, pos=0):
         """Obtiene tiene texto para mostrar. En la varibale pos,
         0 es centrado, 1 es derecha, 2 es izquierda"""
-        self.tt = str(texto)
-        self.ttam = tamano
-        self.tf = fuente
-        self.tpos = pos
-        self.tcol = color
         #Cambio a lo que son tuplas con atributos
         self.textos.append((str(texto), tamano, fuente, pos, color))
     def hay_text(self):
         return len(self.textos)
     def drawtext(self):
         for elem in self.textos:
-            f = pygame.font.Font(get_font(elem[2]), elem[1])
+            f = get_font(elem[2], elem[1])
             pgtext = f.render(elem[0], 1, (0,0,0))
             pgrect = pgtext.get_rect()
             #pgrect.topleft = (elem[3]) #Primitivo
             pgrect.topleft = (self.pos[0], self.pos[1])
             surface.blit(pgtext, pgrect)
     def get_image(self, imagepath, posx = 0, posy = 0):
-        #Checar primero si existe el path
-        if os.path.exists(imagepath):
-            self.ipath = imagepath
-            self.iposx = posx
-            self.iposy = posy
-            self.gotImage = True
-        else:
-            print 'Imagen no existente. Checar su ubicación'
+        img = load_image(imagepath)
+        print img
+        self.imagenes.append((img[0], img[1], posx, posy))
     def drawimage(self):
-        pass
+        for elem in self.imagenes:
+            print "Hola", elem[0], self.pos
+            img_pos = (self.pos[0] + elem[2], self.pos[1] + elem[3])
+            surface.blit(elem[0], img_pos)
+            pygame.display.flip()
     def draw(self):
         #Cambiar esto a otro tipo de rectangulo
         if not self.rounded:
@@ -165,6 +182,7 @@ class Cuadro:
         else:
             RoundRect(surface, self.pos, self.color)
             self.drawtext()
+            self.drawimage()
 
 class Boton(Cuadro):
     """Crea un boton intereactivo en la pantalla. Puede tener diferentes
@@ -187,23 +205,12 @@ class Menu(Cuadro):
     def set_action(self, action):
         pass
 
-def get_font(font): #Esta debe ir en el import
-    if font == 'None':
-        return None
-    elif font == 'Arial':
-        return None
-    else:
-        return None
-
 def get_color(color):
     global colores
     color = colores[color]
     return color
         
 def loadtemplate(filename): #Idem
-    global pantallas
-    global colores
-    global noFont
     tree = ET.parse(filename)
     root = tree.getroot()
     if root.tag == "Pantalla":
@@ -230,12 +237,17 @@ def loadtemplate(filename): #Idem
                 pantallas[Pantalla.pCount - 1].adopt(c)
                 for t in child.findall("Texto"):
                     ttext = t.find("Text").text
-                    print "Texto encontrado: " + ttext
+                    #print "Texto encontrado: " + ttext
                     tsize = int(t.find("Tamano").text)
                     tfont = t.find("Fuente").text
                     tcolor = t.find("Color").text
                     tfont = None #Parche mamon
                     c.get_text(ttext, tsize, tfont, tcolor)
+                for imag in child.findall("Imagen"):
+                    imagen = imag.find("Filename").text
+                    img_posx = int(imag.find("PosX").text)
+                    img_posy = int(imag.find("PosY").text)
+                    c.get_image(imagen, img_posx, img_posy)
             print "Awaken my masters"
             pantallas[0].awaken() #Awaken my masters
     else:
@@ -246,7 +258,7 @@ def main():
     print "Newtech software"
     print "Inicializando...\n"
     #pygame.init()      #cambio temporal
-    surface.fill(colores['White'])
+    surface.fill(colores['Ivory'])
     loadtemplate('test.xml')
     pygame.display.update()
     #pantallas[0].
