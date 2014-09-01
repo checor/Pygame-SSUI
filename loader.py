@@ -128,6 +128,8 @@ class Pantalla:
             print '\nDibujando ' + child.name
             child.draw()
         pygame.display.update()
+    def add_button(self):
+        """Añade un boton a la pantalla"""
 
 class Cuadro:
     """Clase padre de una pantalla. Lleva todos sus atributos"""
@@ -180,16 +182,64 @@ class Cuadro:
 
 class Boton(Cuadro):
     """Crea un boton intereactivo en la pantalla. Puede tener diferentes
-    acciones, dentro de el XML. Adicionalmente se le agrega texto e icono."""
-    def get_icon(self, path, pos = 0):
-        """Obtiene ubicacion de un icono para poner en el cuadro"""
-        pass
-    def got_icon(self):
-        return self.got_icon
-    def get_action(self, actionType, active=False):
-        self.active = False
-        #Agregar
-
+    acciones, dentro de el XML. Adicionalmente se le agrega texto e icono.
+    
+    Se debe agregar a una clase pantalla, esta se encargara de activar
+    y desactivar al engendro que tenemos por boton."""
+    def __init__(self, nombre, color, pos = (0,0,0,0), rounded = 0):
+        print "Cuadro creado: ", nombre
+        Cuadro.Count = Cuadro.Count + 1
+        Cuadro.names.append(nombre)
+        self.name = nombre
+        self.pos = pos
+        self.color = color #No debe usarse
+        self.gotImage = False
+        self.rounded = rounded
+        self.textos = []
+        self.imagenes = []
+        #A partir de aquí comienza código especial de botón
+        self.selected = False
+        self.selected_color = None
+        self.no_selected_color = color
+    def set_action(self, action, objecto = None):
+        """El hueso de un botón ¿que hará cuando se presione?
+        
+            actiontype = 'menu', 'popup', 'start', 'sleep' ...
+            obejto = en caso de ser necesario
+            
+        Vea la documentación para mas informacion
+        """
+        #Mejor usar un diccionario
+        """if action == 'menu':
+            a = 0
+            b = get_pantalla_number(objeto)
+        elif action == 'popup'
+            pass #Aun no se como implementar esta vaina"""        
+    def set_xy(self, xy = (0,0)):
+        """Es importante esta opcion, si no nopodra ser seleccionada
+        xy es una rejilla virtual para poder dezplazarse entre los
+        otros botones de la pantalla (arriba/abajo/izq/der"""
+        self.xy = (xy)
+    def set_scolors(self, col):
+        """Elegi el color el cual se va a utlizar cuando este
+        selecionado"""
+        self.selected_color = color
+    def selected(self):
+        self.selected = True
+    def draw(self):
+        if self.selected == True:
+            draw_color = self.selected_color
+        else:
+            draw_color = self.unselected_color
+        if not self.rounded:
+            pygame.draw.rect(surface, draw_color, self.pos)
+            self.drawtext()
+            self.drawimage()
+        else:
+            RoundRect(surface, draw_color, self.color)
+            self.drawtext()
+            self.drawimage()
+    
 class Menu(Cuadro):
     """Crea un menu de opciones el cual se puede mover y seleccionar acciones.
     Debe estar en pantalla completa idealmente para ser utilizado.
