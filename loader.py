@@ -92,7 +92,7 @@ def load_image(name, colorkey=None):
         image = pygame.image.load(fullname)
     except pygame.error, message:
         print 'No se pudo cargar la imamen: ', fullname
-        raise SystemExit, message
+        #raise SystemExit, message
     image = image.convert_alpha()
     return image, image.get_rect()
 
@@ -205,11 +205,23 @@ class Boton(Cuadro):
         """El hueso de un botón ¿que hará cuando se presione?
         
             actiontype = 'menu', 'popup', 'start', 'sleep' ...
+            la accion viene directo del XML
+            
             obejto = en caso de ser necesario
             
         Vea la documentación para mas informacion
         """
-        #Mejor usar un diccionario
+        actions = {"menu" : 0, "popup" : 1, "start" : 2, "sleep" : 3,
+        "activate" : 4}
+        try:
+            action = actions[action]
+        except:
+            print "Accion no reconocida", action
+            return
+        #Comienza a realizar la accion seleccionada
+        if action == 0:
+            pass
+            #Agregar variable a la pantalla padre, how?
         """if action == 'menu':
             a = 0
             b = get_pantalla_number(objeto)
@@ -303,9 +315,9 @@ def main():
     surface.fill(colores['Ivory'])
     loadtemplate('test.xml')
     pygame.display.update()
-    time = clock.tick(30)
     running = True
     while running:
+        clock.tick(30)
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
