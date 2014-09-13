@@ -17,7 +17,7 @@ Variables para pygame
 Estas seran movidas a un libreria mas adelante
 """
 size = width, height = 320, 240  #Elegimos el tamaño de la pantalla
-surface = pygame.display.set_mode(size)  #Pantalla completa a futuro
+surface = pygame.display.set_mode((size),0,24)  #Pantalla completa a futuro
 pygame.display.set_caption("Newtech Software")  #Nombre de la ventana
 
 #Colores de guia de Firefox OS
