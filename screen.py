@@ -4,7 +4,7 @@ Created on Thu Jul 10 19:24:52 2014
 
 @author: checor@gmail.com
 
-Gettin pumped
+Posible cambio a classes
 """
 
 import pygame, sys
@@ -12,15 +12,13 @@ from pygame.locals import *
 import xml.etree.ElementTree as ET
 import os
 
-size = width, height = 320, 240  #Elegimos el tamaño de la pantalla
-surface = pygame.display.set_mode(size)  #Pantalla completa a futuro
-pygame.display.set_caption("Newtech Software")  #Nombre de la ventana
-clock = pygame.time.Clock()
-
 """
 Variables para pygame
 Estas seran movidas a un libreria mas adelante
 """
+size = width, height = 320, 240  #Elegimos el tamaño de la pantalla
+surface = pygame.display.set_mode(size)  #Pantalla completa a futuro
+pygame.display.set_caption("Newtech Software")  #Nombre de la ventana
 
 #Colores de guia de Firefox OS
 colores = {"Blue": (0, 170, 204) , "Orange": (255,78,0) , "Brick":
@@ -28,11 +26,8 @@ colores = {"Blue": (0, 170, 204) , "Orange": (255,78,0) , "Brick":
                "Black" : (0,0,0) , "Warm grey" : (51,51,51) , "Warm grey" :
                (44,57,59) , "Light grey" : (244,244,244) , "Ivory" :
                (234,234,231) , "White" : (255,255,255) }
-#Fuentes
-pygame.init()
-pygame.font.init()
-noFont = pygame.font.SysFont(None, 8)
 
+#Fuentes
 def get_font(font, size): #Esta debe ir en el import
     if font == 'None':
         return pygame.font.SysFont(None, size)
@@ -40,7 +35,7 @@ def get_font(font, size): #Esta debe ir en el import
         try:
             f = pygame.font.SysFont(font, size)
         except:
-            print "Fuente ", font, " no encontrada"
+            ##print "Fuente ", font, " no encontrada"
             return pygame.font.SysFont(None, size)
         return f
 """Fin de variables"""
@@ -105,7 +100,7 @@ class Pantalla:
     pCount = 0
     names = []
     def __init__(self, nombre, color, screensaver = False):
-        print "Pantalla creada: ", nombre
+        #print "Pantalla creada: ", nombre
         self.nombre = nombre
         self.color = color
         self.screensaver = screensaver
@@ -119,13 +114,13 @@ class Pantalla:
         pygame.display.update()
     def adopt(self, hijo):
         if isinstance(hijo, Cuadro) == True:
-            print "Hijo", hijo.name, "creado"
+            #print "Hijo", hijo.name, "creado"
             self.hijos.append(hijo)
     def awaken(self):
         global surface
         #Awaken my masters
         for child in self.hijos:
-            print '\nDibujando ' + child.name
+            #print '\nDibujando ' + child.name
             child.draw()
         pygame.display.update()
     def add_button(self):
@@ -137,7 +132,7 @@ class Cuadro:
     Count = 0
     names = []
     def __init__(self, nombre, color, pos = (0,0,0,0), rounded = 0):
-        print "Cuadro creado: ", nombre
+        #print "Cuadro creado: ", nombre
         Cuadro.Count = Cuadro.Count + 1
         Cuadro.names.append(nombre)
         self.name = nombre
@@ -162,11 +157,11 @@ class Cuadro:
             surface.blit(pgtext, pgrect)
     def get_image(self, imagepath, posx = 0, posy = 0):
         img = load_image(imagepath)
-        print img
+        #print img
         self.imagenes.append((img[0], img[1], posx, posy))
     def drawimage(self):
         for elem in self.imagenes:
-            print "Hola", elem[0], self.pos
+            #print "Hola", elem[0], self.pos
             img_pos = (self.pos[0] + elem[2], self.pos[1] + elem[3])
             surface.blit(elem[0], img_pos)
             pygame.display.flip()
@@ -186,7 +181,7 @@ class Boton(Cuadro):
     Se debe agregar a una clase pantalla, esta se encargara de activar
     y desactivar al engendro que tenemos por boton."""
     def __init__(self, nombre, color, pos = (0,0,0,0), rounded = 0):
-        print "Cuadro creado: ", nombre
+        #print "Cuadro creado: ", nombre
         Cuadro.Count = Cuadro.Count + 1
         Cuadro.names.append(nombre)
         self.name = nombre
@@ -215,7 +210,7 @@ class Boton(Cuadro):
         try:
             action = actions[action]
         except:
-            print "Accion no reconocida", action
+            #print "Accion no reconocida", action
             return
         #Comienza a realizar la accion seleccionada
         if action == 0:
@@ -269,23 +264,23 @@ def loadtemplate(filename): #Idem
     tree = ET.parse(filename)
     root = tree.getroot()
     if root.tag == "Pantalla":
-            print "Abirendo " + root.tag
+            #print "Abirendo " + root.tag
             p = Pantalla("main", colores['White'])
             pantallas.append(p)
             for child in root.findall("Caja"):
-                print "Caja encontrada! Nombre: " + child.attrib['Nombre']
+                #print "Caja encontrada! Nombre: " + child.attrib['Nombre']
                 #comenzar a realizar los objetos
                 #Mejorar esta parte del código
                 x = child.find('PosX')
-                print x.tag, x.text
+                #print x.tag, x.text
                 y = child.find('PosY')
-                print y.tag, y.text
+                #print y.tag, y.text
                 al = child.find('Alto')
-                print al.tag, al.text
+                #print al.tag, al.text
                 an = child.find('Ancho')
-                print an.tag, an.text
+                #print an.tag, an.text
                 posc = (int(x.text), int(y.text), int(an.text), int(al.text))
-                print posc
+                #print posc
                 color = child.find('Color').text
                 color = get_color(color)
                 rounded = float(child.find('Redondez').text)
@@ -308,9 +303,14 @@ def loadtemplate(filename): #Idem
         print "XML inválido."
 
 def main():
-    global pantallas
-    print "Newtech software"
-    print "Inicializando...\n"
+    pygame.init()
+    pygame.font.init()
+    noFont = pygame.font.SysFont(None, 8)
+
+    clock = pygame.time.Clock()
+    
+    #print "Newtech software"
+    #print "Inicializando...\n"
     surface.fill(colores['Ivory'])
     loadtemplate('test.xml')
     pygame.display.update()
@@ -332,3 +332,13 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+class Screen:
+    """Maneja por completo todo lo que se muestra en la pantalla,
+    mediante el uso de pygame. No confundir con clase Pantalla."""
+    def __init__(self):
+        self.running = False
+    def run(self):
+        main()
+        
