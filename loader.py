@@ -12,9 +12,9 @@ from pygame.locals import *
 import xml.etree.ElementTree as ET
 import os
 
-size = width, height = 320, 240 #Elegimos el tamaño de la pantalla
-surface = pygame.display.set_mode(size) #Pantalla completa a futuro
-pygame.display.set_caption("Newtech Software") #Nombre de la ventana
+size = width, height = 320, 240  #Elegimos el tamaño de la pantalla
+surface = pygame.display.set_mode(size)  #Pantalla completa a futuro
+pygame.display.set_caption("Newtech Software")  #Nombre de la ventana
 clock = pygame.time.Clock()
 
 """
@@ -23,10 +23,10 @@ Estas seran movidas a un libreria mas adelante
 """
 
 #Colores de guia de Firefox OS
-colores = {"Blue" : (0, 170, 204) , "Orange" : (255,78,0) , "Brick" :
-               (205,103,35) , "Red" : (185,0,0) , "Green" : (95,155,10),
+colores = {"Blue": (0, 170, 204) , "Orange": (255,78,0) , "Brick":
+               (205,103,35), "Red":(185,0,0), "Green":(95,155,10),
                "Black" : (0,0,0) , "Warm grey" : (51,51,51) , "Warm grey" :
-               (44,57,59) , "Light grey" : (244,244,244) , "Ivory" : 
+               (44,57,59) , "Light grey" : (244,244,244) , "Ivory" :
                (234,234,231) , "White" : (255,255,255) }
 #Fuentes
 pygame.init()
@@ -100,7 +100,7 @@ def load_image(name, colorkey=None):
 pantallas = []
 
 class Pantalla:
-    """Crea un objeto para la pantalla. Lleva como hijos los cuadros que 
+    """Crea un objeto para la pantalla. Lleva como hijos los cuadros que
     necesita y los dibujara con sus valores"""
     pCount = 0
     names = []
@@ -183,7 +183,6 @@ class Cuadro:
 class Boton(Cuadro):
     """Crea un boton intereactivo en la pantalla. Puede tener diferentes
     acciones, dentro de el XML. Adicionalmente se le agrega texto e icono.
-    
     Se debe agregar a una clase pantalla, esta se encargara de activar
     y desactivar al engendro que tenemos por boton."""
     def __init__(self, nombre, color, pos = (0,0,0,0), rounded = 0):
@@ -203,12 +202,12 @@ class Boton(Cuadro):
         self.no_selected_color = color
     def set_action(self, action, objecto = None):
         """El hueso de un botón ¿que hará cuando se presione?
-        
+
             actiontype = 'menu', 'popup', 'start', 'sleep' ...
             la accion viene directo del XML
-            
+
             obejto = en caso de ser necesario
-            
+
         Vea la documentación para mas informacion
         """
         actions = {"menu" : 0, "popup" : 1, "start" : 2, "sleep" : 3,
@@ -226,7 +225,7 @@ class Boton(Cuadro):
             a = 0
             b = get_pantalla_number(objeto)
         elif action == 'popup'
-            pass #Aun no se como implementar esta vaina"""        
+            pass #Aun no se como implementar esta vaina"""
     def set_xy(self, xy = (0,0)):
         """Es importante esta opcion, si no nopodra ser seleccionada
         xy es una rejilla virtual para poder dezplazarse entre los
@@ -251,7 +250,7 @@ class Boton(Cuadro):
             RoundRect(surface, draw_color, self.color)
             self.drawtext()
             self.drawimage()
-    
+
 class Menu(Cuadro):
     """Crea un menu de opciones el cual se puede mover y seleccionar acciones.
     Debe estar en pantalla completa idealmente para ser utilizado.
@@ -265,7 +264,7 @@ def get_color(color):
     global colores
     color = colores[color]
     return color
-        
+
 def loadtemplate(filename): #Idem
     tree = ET.parse(filename)
     root = tree.getroot()
