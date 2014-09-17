@@ -28,14 +28,14 @@ colores = {"Blue": (0, 170, 204) , "Orange": (255,78,0) , "Brick":
                (234,234,231) , "White" : (255,255,255) }
 
 #Fuentes
-def get_font(font, size): #Esta debe ir en el import
+def get_font(font, size):
     if font == 'None':
         return pygame.font.SysFont(None, size)
     else:
         try:
             f = pygame.font.SysFont(font, size)
         except:
-            ##print "Fuente ", font, " no encontrada"
+            print "Advertencia: Fuente ", font, " no encontrada"
             return pygame.font.SysFont(None, size)
         return f
 """Fin de variables"""
@@ -87,7 +87,6 @@ def load_image(name, colorkey=None):
         image = pygame.image.load(fullname)
     except pygame.error, message:
         print 'No se pudo cargar la imamen: ', fullname
-        #raise SystemExit, message
     image = image.convert_alpha()
     return image, image.get_rect()
 
@@ -181,7 +180,8 @@ class Boton(Cuadro):
     Se debe agregar a una clase pantalla, esta se encargara de activar
     y desactivar al engendro que tenemos por boton."""
     def __init__(self, nombre, color, pos = (0,0,0,0), rounded = 0):
-        #print "Cuadro creado: ", nombre
+        Cuadro.__init__(self, nombre, color, pos = (0,0,0,0), rounded = 0)  #Args
+        """#print "Cuadro creado: ", nombre
         Cuadro.Count = Cuadro.Count + 1
         Cuadro.names.append(nombre)
         self.name = nombre
@@ -194,7 +194,7 @@ class Boton(Cuadro):
         #A partir de aquí comienza código especial de botón
         self.selected = False
         self.selected_color = None
-        self.no_selected_color = color
+        self.no_selected_color = color"""
     def set_action(self, action, objecto = None):
         """El hueso de un botón ¿que hará cuando se presione?
 
@@ -302,17 +302,22 @@ def loadtemplate(filename): #Idem
     else:
         print "XML inválido."
 
-def main():
+def main(filename):
+    global q
+    print q
+    
     pygame.init()
     pygame.font.init()
     noFont = pygame.font.SysFont(None, 8)
 
     clock = pygame.time.Clock()
     
-    #print "Newtech software"
-    #print "Inicializando...\n"
     surface.fill(colores['Ivory'])
-    loadtemplate('test.xml')
+    try:
+        loadtemplate(filename)
+    except:
+        print "Fatal: Correr main.py, no este archivo solamente"
+        return
     pygame.display.update()
     running = True
     while running:
@@ -328,10 +333,11 @@ def main():
                     running = False
                 elif event.key == K_q:
                     print "Press ESC to quit"
+                    q.put("Putos todos")
     return 0
 
 if __name__ == '__main__':
-    main()
+    main('')
 
 
 class Screen:
@@ -339,6 +345,7 @@ class Screen:
     mediante el uso de pygame. No confundir con clase Pantalla."""
     def __init__(self):
         self.running = False
-    def run(self):
-        main()
+    def run(self, filename):
+        global q
+        main(filename)
         
