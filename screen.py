@@ -12,6 +12,8 @@ from pygame.locals import *
 import xml.etree.ElementTree as ET
 import os
 
+import glob
+
 """
 Variables para pygame
 Estas seran movidas a un libreria mas adelante
@@ -91,39 +93,47 @@ def load_image(name, colorkey=None):
     return image, image.get_rect()
 
 #Objetos globales
-pantallas = []
+pantallas = {}
 
 class Pantalla:
     """Crea un objeto para la pantalla. Lleva como hijos los cuadros que
     necesita y los dibujara con sus valores"""
     pCount = 0
-    names = []
-    def __init__(self, nombre, color, screensaver = False):
+    pcurrent = None
+    def __init__(self, nombre, color):
         #print "Pantalla creada: ", nombre
         self.nombre = nombre
         self.color = color
-        self.screensaver = screensaver
         self.hijos = []
         Pantalla.pCount = Pantalla.pCount + 1
-        Pantalla.names.append(nombre)
-    def pintate(self):
-        global surface
-        surface.Fill(Colors[self.color])
-    def update(self):
-        pygame.display.update()
     def adopt(self, hijo):
-        if isinstance(hijo, Cuadro) == True:
+        if isinstance(hijo, Cuadro):
             #print "Hijo", hijo.name, "creado"
             self.hijos.append(hijo)
+        """elif isinstance(hijo, Popup):
+            pass
+        elif isinstance(hijo, Boton):
+            pass
+        elif isinstance(self, Pito):
+            pass"""
     def awaken(self):
         global surface
-        #Awaken my masters
+        pcurrent = self.nombre
         for child in self.hijos:
             #print '\nDibujando ' + child.name
             child.draw()
         pygame.display.update()
-    def add_button(self):
-        """Añade un boton a la pantalla"""
+    def sleep(self, color = 'Ivory'):
+        global surface
+        surface.fill(colores[color])
+        pygame.display.update()
+    def current(self):
+        return pcurrent
+    def update(self):
+        pygame.display.update()
+        
+    
+#class PopupMenu
 
 class Cuadro:
     """Clase padre de una pantalla. Lleva todos sus atributos"""
@@ -141,24 +151,70 @@ class Cuadro:
         self.rounded = rounded
         self.textos = []
         self.imagenes = []
-    def get_text(self, texto, tamano, fuente, color, pos=0):
+    def get_text(self, string, tamano, fuente, color, **kwargs):
         """Obtiene tiene texto para mostrar. En la varibale pos,
-        0 es centrado, 1 es derecha, 2 es izquierda"""
-        self.textos.append((str(texto), tamano, fuente, pos, color))
-    def hay_text(self):
+        0 es centrado, 1 es derecha, 2 es izquierda
+        
+        pos aun no se encuentra implementado                        """
+        self.textos.append((str(string), tamano, fuente, kwargs))
+    def got_text(self):
         return len(self.textos)
     def drawtext(self):
         for elem in self.textos:
-            f = get_font(elem[2], elem[1])
+            """f = get_font(elem[2], elem[1])
             pgtext = f.render(elem[0], 1, (0,0,0))
             pgrect = pgtext.get_rect()
             pgrect.topleft = (self.pos[0], self.pos[1])
-            surface.blit(pgtext, pgrect)
+            surface.blit(pgtext, pgrect)"""
+            t = get_font(elem[2], elem[1])
+            text_render = t.render(elem[0], 1, (0,0,0))
+            text_rect = text_render.get_rect()
+            if 'posx' in elem[-1] and 'posy' in elem[-1]:  # elem[-1] = kwargs
+                x = self.pos[0] + elem[-1]['posx']
+                y = self.pos[1] + elem[-1]['posy']
+                text_rect.topleft = (x , y)
+            elif 'posy' in elem[-1] and 'align' in elem[-1]:
+                if elem[-1]['align'] == -1:  # Izquierda
+                    x = Rect(self.pos).left
+                    y = self.pos[1] + elem[-1]['posy']
+                    text_rect.topleft = (x , y)
+                elif elem[-1]['align'] == 0:  # Centrado
+                    x = Rect(self.pos).centerx
+                    y = self.pos[1] + elem[-1]['posy']
+                    text_rect.centerx = x
+                    text_rect.top = y
+                elif elem[-1]['align'] == 1:  # Derecho
+                    x = Rect(self.pos).right
+                    #y = text_rect.height * elem[-1]['align']
+                    y = self.pos[1] + elem[-1]['posy']
+                    text_rect.right = x
+                    text_rect.top = y
+                print "Fatal, mala alineacion", elem[-1]['align']
+            elif 'line' in elem[-1] and 'align' in elem[-1]:
+                print "Good"
+                if elem[-1]['align'] == -1:  # Izquierda
+                    x = Rect(self.pos).left
+                    text_rect.left = x
+                elif elem[-1]['align'] == 0:  # Centrado
+                    x = Rect(self.pos).centerx
+                    text_rect.centerx = x
+                elif elem[-1]['align'] == 1:  # Derecho
+                    x = Rect(self.pos).right
+                    text_rect.right = x
+                else:
+                    print "Fatal! No valor valido de alineacion",
+                    elem[-1]['align']
+                y = self.pos[1] + elem[-1]['line'] * text_rect.height
+                print x, y, self.pos[1]
+                text_rect.top = y
+            else:
+                print "Fatal! Texto mal alineado!!", elem[-1]
+            surface.blit(text_render, text_rect)
     def get_image(self, imagepath, posx = 0, posy = 0):
         img = load_image(imagepath)
         #print img
         self.imagenes.append((img[0], img[1], posx, posy))
-    def drawimage(self):
+    def draw_image(self):
         for elem in self.imagenes:
             #print "Hola", elem[0], self.pos
             img_pos = (self.pos[0] + elem[2], self.pos[1] + elem[3])
@@ -168,11 +224,11 @@ class Cuadro:
         if not self.rounded:
             pygame.draw.rect(surface, self.color, self.pos)
             self.drawtext()
-            self.drawimage()
+            self.draw_image()
         else:
             RoundRect(surface, self.pos, self.color)
             self.drawtext()
-            self.drawimage()
+            self.draw_image()
 
 class Boton(Cuadro):
     """Crea un boton intereactivo en la pantalla. Puede tener diferentes
@@ -240,11 +296,11 @@ class Boton(Cuadro):
         if not self.rounded:
             pygame.draw.rect(surface, draw_color, self.pos)
             self.drawtext()
-            self.drawimage()
+            self.draw_image()
         else:
             RoundRect(surface, draw_color, self.color)
             self.drawtext()
-            self.drawimage()
+            self.draw_image()
 
 class Menu(Cuadro):
     """Crea un menu de opciones el cual se puede mover y seleccionar acciones.
@@ -260,15 +316,15 @@ def get_color(color):
     color = colores[color]
     return color
 
-def loadtemplate(filename): #Idem
+def loadtemplate(filename): 
     tree = ET.parse(filename)
     root = tree.getroot()
     if root.tag == "Pantalla":
-            #print "Abirendo " + root.tag
-            p = Pantalla("main", colores['White'])
-            pantallas.append(p)
+            print "Abirendo " + root.tag
+            p = Pantalla(filename, colores['White'])  # WAT
+            pantallas[filename] = p
             for child in root.findall("Caja"):
-                #print "Caja encontrada! Nombre: " + child.attrib['Nombre']
+                print "Caja encontrada! Nombre: " + child.attrib['Nombre']
                 #comenzar a realizar los objetos
                 #Mejorar esta parte del código
                 x = child.find('PosX')
@@ -285,27 +341,35 @@ def loadtemplate(filename): #Idem
                 color = get_color(color)
                 rounded = float(child.find('Redondez').text)
                 c = Cuadro(str(child.attrib['Nombre']), color,  posc, rounded)
-                pantallas[Pantalla.pCount - 1].adopt(c)
+                #pantallas[Pantalla.pCount - 1].adopt(c)
+                pantallas[filename].adopt(c)
                 for t in child.findall("Texto"):
                     ttext = t.find("Text").text
                     #print "Texto encontrado: " + ttext
                     tsize = int(t.find("Tamano").text)
                     tfont = t.find("Fuente").text
                     tcolor = t.find("Color").text
-                    c.get_text(ttext, tsize, tfont, tcolor)
+                    try:
+                        var = t.find("Global_Variable").text
+                        print var
+                        exec("var_t = glob."+var)
+                        print var_t
+                        ttext += str(var_t)
+                    except:
+                        print "La cagaste ivan"
+                    c.get_text(ttext, tsize, tfont, tcolor, line=.5, align=0)
                 for imag in child.findall("Imagen"):
                     imagen = imag.find("Filename").text
                     img_posx = int(imag.find("PosX").text)
                     img_posy = int(imag.find("PosY").text)
                     c.get_image(imagen, img_posx, img_posy)
-            pantallas[0].awaken() #Awaken my masters
+            #pantallas[0].awaken() #Awaken my masters
     else:
         print "XML inválido."
 
 def main(filename):
-    global q
-    print q
-    
+    print glob.q
+
     pygame.init()
     pygame.font.init()
     noFont = pygame.font.SysFont(None, 8)
@@ -313,15 +377,11 @@ def main(filename):
     clock = pygame.time.Clock()
     
     surface.fill(colores['Ivory'])
-    try:
-        loadtemplate(filename)
-    except:
-        print "Fatal: Correr main.py, no este archivo solamente"
-        return
+    loadtemplate(filename)
     pygame.display.update()
     running = True
     while running:
-        clock.tick(30)
+        clock.tick(30)  # 30 FPS
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -333,7 +393,14 @@ def main(filename):
                     running = False
                 elif event.key == K_q:
                     print "Press ESC to quit"
-                    q.put("Putos todos")
+                    glob.q.put("Putos todos")
+                elif event.key == K_a:
+                    pantallas["test.xml"].awaken()
+                elif event.key == K_s:
+                    pantallas["test.xml"].sleep()
+                elif event.key == K_m:
+                    print clock.get_fps()
+                    glob.numero_prueba += 1
     return 0
 
 if __name__ == '__main__':

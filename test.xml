@@ -16,7 +16,7 @@
             <Fuente>Arial</Fuente>
             <Centrado>No</Centrado><!-- Aun no implementado -->
             <Tamano>38</Tamano>
-            <Text>    Gas chido</Text>
+            <Text>Gas chido</Text>
             <Color>White</Color>
         </Texto>
         <Imagen>
@@ -40,7 +40,7 @@
             <Fuente>None</Fuente>
             <Centrado>Si</Centrado>
             <Tamano>32</Tamano>
-            <Text> Promo: 1x2</Text>
+            <Text>Promo: 1x2</Text>
             <Color>White</Color>
         </Texto>
     </Caja>
@@ -54,7 +54,8 @@
         <Texto>
             <Fuente>digital-7</Fuente>
             <Tamano>60</Tamano>
-            <Text>    $   0.00</Text>
+            <Text>$</Text>
+            <Global_Variable>numero_prueba</Global_Variable>
             <Color>White</Color>
         </Texto>
     </Caja>
