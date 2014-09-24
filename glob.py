@@ -3,4 +3,3 @@
 import Queue
 
 q = Queue.Queue()
-numero_prueba = 0.01

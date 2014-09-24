@@ -7,7 +7,7 @@ Created on Thu Jul 10 19:24:52 2014
 Posible cambio a classes
 """
 
-import pygame, sys
+import pygame, sys, re
 from pygame.locals import *
 import xml.etree.ElementTree as ET
 import os
@@ -41,6 +41,21 @@ def get_font(font, size):
             return pygame.font.SysFont(None, size)
         return f
 """Fin de variables"""
+
+def text_parser(string):
+	#Ejemplo 
+	#"Las aventuras de %s, el %s con pelos" % chicho nino
+	exp_re = re.compile("%[^ ]")
+	split_re = re.compile("(?<=% )(.*)").search(string)
+	var_re = re.compile("(\w+)")
+	
+	indicadores = exp_re.findall(string)  # %s , %s
+	variables = var_re.findall(split_re.groups()[0])  #chicho , nino
+	
+	value = []
+	for i, j  in zip(indicadores, variables):
+			exec("value.append(glob."+j+")")
+		
 
 #Definiciones realtivas a la pantalla
 
