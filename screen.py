@@ -54,7 +54,7 @@ def text_parser(string):
 	
 	value = []
 	for i, j  in zip(indicadores, variables):
-			exec("value.append(glob."+j+")")
+		exec("value.append(glob."+j+")")
 		
 
 #Definiciones realtivas a la pantalla
