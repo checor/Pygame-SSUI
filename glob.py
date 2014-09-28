@@ -4,6 +4,4 @@ import Queue
 
 q = Queue.Queue()
 
-sensors = {}
-printers = {}
-config = {}
+dicc = {}

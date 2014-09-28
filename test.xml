@@ -8,16 +8,13 @@
         <PosX>30</PosX>
         <PosY>0</PosY>
         <Redondez>.4</Redondez>
-        <Margen> <!-- Aun no implementado -->
-            <Tamano>10</Tamano>
-            <Color>Negro</Color>
-        </Margen>
         <Texto>
             <Fuente>Arial</Fuente>
-            <Centrado>No</Centrado><!-- Aun no implementado -->
+            <Alineacion>1</Alineacion>
             <Tamano>38</Tamano>
             <Text>Gas chido</Text>
             <Color>White</Color>
+            <Linea>0</Linea>
         </Texto>
         <Imagen>
             <Filename>gas.png</Filename>
@@ -32,16 +29,13 @@
         <PosY>150</PosY>
         <Color>Orange</Color>
         <Redondez>.2</Redondez>
-        <Margen>
-            <Tamano>15</Tamano>
-            <Color>Blanco</Color>
-        </Margen>
         <Texto>
             <Fuente>None</Fuente>
-            <Centrado>Si</Centrado>
+            <Alineacion>0</Alineacion>
             <Tamano>32</Tamano>
             <Text>Promo: 1x2</Text>
             <Color>White</Color>
+            <Linea>0</Linea>
         </Texto>
     </Caja>
     <Caja Nombre="Caja 3">
@@ -52,10 +46,11 @@
         <Color>Light grey</Color>
         <Redondez>.4</Redondez>
         <Texto>
-            <Fuente>digital-7</Fuente>
+            <Fuente>digital-7-mono</Fuente>
+            <Alineacion>-1</Alineacion>
+            <Linea>0</Linea>
             <Tamano>60</Tamano>
-            <Text>$</Text>
-            <Global_Variable>numero_prueba</Global_Variable>
+            <Text>"$%f" % venta</Text>
             <Color>White</Color>
         </Texto>
     </Caja>

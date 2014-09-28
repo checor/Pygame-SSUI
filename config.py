@@ -30,7 +30,8 @@ class ConfigReader:
             conf.read(filepath)
             return conf
         else:
-            print "Advertencia: Falta archivo", filename, "en la carpeta config"
+            print "Advertencia: Falta archivo", filename, "en la \
+            carpeta config"
             return
     def get_value(self,config, dad, son):
         try:
