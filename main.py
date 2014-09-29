@@ -24,6 +24,8 @@ def main():
     while True:
         time.sleep(.1)
         glob.dicc['venta']+= 0.1
+        if glob.dicc['venta'] > 30:
+            break
     return 0
 
 if __name__ == '__main__':

@@ -4,7 +4,10 @@ Created on Thu Jul 10 19:24:52 2014
 
 @author: checor@gmail.com
 
-Posible cambio a classes
+TODO: Cambiar la forma de checar los diccionarios para hacerlo mas
+robusto
+
+Pensar en la forma de hacer updates
 """
 
 import pygame, sys, re
@@ -23,6 +26,7 @@ surface = pygame.display.set_mode((size),0,24)  #Pantalla completa a futuro
 pygame.display.set_caption("Newtech Software")  #Nombre de la ventana
 
 #Colores de guia de Firefox OS
+#Checar los colores, ya que se repite uno[]
 colores = {"Blue": (0, 170, 204) , "Orange": (255,78,0) , "Brick":
                (205,103,35), "Red":(185,0,0), "Green":(95,155,10),
                "Black" : (0,0,0) , "Warm grey" : (51,51,51) , "Warm grey" :
@@ -60,6 +64,29 @@ def text_parser(string):
 
         string = string.replace(i, str(val), 1)
     return re.findall ( """["'](.*?)['"]""", string, re.DOTALL)[0]
+
+def action_parser(string):
+    """Herramienta que nos permite realizar acciones provenientes de un
+    botón un menú, o cualquiero otro sistema. Obtiene un string,
+    realiza la acción y devuelve el resultado de dicha acción"""
+    action = string.split()[0]
+    if action == 'OpenXML':
+        pantallas[Pantalla.pCurrent].sleep()
+        name = string.split()[1] + '.xml'
+        if pantallas.has_key(name):
+            pantallas[name].awaken()
+        else:
+            try:
+                loadtemplate(name)
+            except:
+                print "Fatal: Imposible cargar pantalla", name
+                return
+            pantallas[name].awaken()
+    elif action == 'OpenPopup':
+        pass
+    elif action == 'Poweroff':
+        print "Comienza secuencia de apagado iniciada por el usuario"
+    #Mcuhas mas secuencias deben ir aquí, pero no han sido cargadas
 
 #Definiciones realtivas a la pantalla
 
@@ -118,26 +145,30 @@ class Pantalla:
     """Crea un objeto para la pantalla. Lleva como hijos los cuadros que
     necesita y los dibujara con sus valores"""
     pCount = 0
-    pcurrent = None
+    pCurrent = None
     def __init__(self, nombre, color):
         #print "Pantalla creada: ", nombre
         self.nombre = nombre
         self.color = color
         self.hijos = []
+        
         Pantalla.pCount = Pantalla.pCount + 1
+        if Pantalla.pCurrent == None:
+            Pantalla.pCurrent = self.nombre
     def adopt(self, hijo):
         if isinstance(hijo, Cuadro):
-            #print "Hijo", hijo.name, "creado"
             self.hijos.append(hijo)
-        """elif isinstance(hijo, Popup):
+        elif isinstance(hijo, ):
             pass
         elif isinstance(hijo, Boton):
             pass
         elif isinstance(self, Pito):
-            pass"""
+            pass
+        else:
+            print "Advertencia: hijo no reconocido:", hijo
     def awaken(self):
         global surface
-        pcurrent = self.nombre
+        Pantalla.pCurrent = self.nombre
         for child in self.hijos:
             #print '\nDibujando ' + child.name
             child.draw()
@@ -146,14 +177,15 @@ class Pantalla:
         surface.fill(colores[color])
         pygame.display.update()
     def current(self):
-        return pcurrent
+        return Pantalla.pCurrent
     def update(self):
         self.awaken()
     
 #class PopupMenu
 
 class Cuadro:
-    """Clase padre de una pantalla. Lleva todos sus atributos"""
+    """Clase padre de una pantalla. Lleva todos los atributos minimos
+    necesarios para la utilizacion de un elemento en la pantalla"""
     global surface
     Count = 0
     names = []
@@ -243,62 +275,36 @@ class Cuadro:
 
 class Boton(Cuadro):
     """Crea un boton intereactivo en la pantalla. Puede tener diferentes
-    acciones, dentro de el XML. Adicionalmente se le agrega texto e icono.
+    acciones, dentro de el XML. Adicionalmente se le agrega texto e icon
     Se debe agregar a una clase pantalla, esta se encargara de activar
     y desactivar al engendro que tenemos por boton."""
-    def __init__(self, nombre, color, pos = (0,0,0,0), rounded = 0):
-        Cuadro.__init__(self, nombre, color, pos = (0,0,0,0), rounded = 0)  #Args
+    def set_values(self, in_color, nav_xy, action):
+        self.ac_color = self.color
+        self.in_color = in_color
+        self.nav_xy = nav_xy
+        self.action = action
+    def do_action(self):
+        action_parser(self.action)
+    def set_state(state):
+        if state == True:
+            self.color = self.ac_color
+            self.state = False
+        else:
+            self.color = self.in_color
+            self.state = True
+
+class input_handler():
+    """Por el momento, esta clase solamente se encarga de tratar con
+    los botones. Recibe lsa entradas directamente de Pygame, y hace
+    los cambios necesario en la pantalla para reflejarlos en pantalla"""
+    def __init__(self, pantalla_name):
+        self.master = pantalla_name
+    def get_xy(self):
+        """Obtiene los valores xy de las pantallas de master para poder
+        manejarlas"""
         
-    def set_action(self, action, objecto = None):
-        """El hueso de un botón ¿que hará cuando se presione?
-
-            actiontype = 'menu', 'popup', 'start', 'sleep' ...
-            la accion viene directo del XML
-
-            obejto = en caso de ser necesario
-
-        Vea la documentación para mas informacion
-        """
-        actions = {"menu" : 0, "popup" : 1, "start" : 2, "sleep" : 3,
-        "activate" : 4}
-        try:
-            action = actions[action]
-        except:
-            print "Accion no reconocida", action
-            return
-        #Comienza a realizar la accion seleccionada
-        if action == 0:
-            pass
-            #Agregar variable a la pantalla padre, how?
-        """if action == 'menu':
-            a = 0
-            b = get_pantalla_number(objeto)
-        elif action == 'popup'
-            pass #Aun no se como implementar esta vaina"""
-    def set_xy(self, xy = (0,0)):
-        """Es importante esta opcion, si no nopodra ser seleccionada
-        xy es una rejilla virtual para poder dezplazarse entre los
-        otros botones de la pantalla (arriba/abajo/izq/der"""
-        self.xy = (xy)
-    def set_scolors(self, col):
-        """Elegi el color el cual se va a utlizar cuando este
-        selecionado"""
-        self.selected_color = color
-    def selected(self):
-        self.selected = True
-    def draw(self):
-        if self.selected == True:
-            draw_color = self.selected_color
-        else:
-            draw_color = self.unselected_color
-        if not self.rounded:
-            pygame.draw.rect(surface, draw_color, self.pos)
-            self.drawtext()
-            self.draw_image()
-        else:
-            RoundRect(surface, draw_color, self.color)
-            self.drawtext()
-            self.draw_image()
+        
+             
 
 class Menu(Cuadro):
     """Crea un menu de opciones el cual se puede mover y seleccionar acciones.
@@ -362,9 +368,12 @@ def main(filename):
     running = True
     screen_state = True
     while running:
-        clock.tick(30)  # 30 FPS
+        clock.tick(30)
         if screen_state==True:
-            pantallas["test.xml"].update()
+            try:
+                pantallas[Pantalla.pCurrent].update()
+            except:
+                pass
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -379,17 +388,18 @@ def main(filename):
                     glob.q.put("Putos todos")
                 elif event.key == K_a:
                     screen_state = True
-                    pantallas["test.xml"].awaken()
+                    print Pantalla.pCurrent
+                    pantallas[Pantalla.pCurrent].awaken()
                 elif event.key == K_s:
                     screen_state = False
-                    pantallas["test.xml"].sleep()
+                    pantallas[Pantalla.pCurrent].sleep()
                 elif event.key == K_m:
                     print clock.get_fps()
+                    action_parser("OpenXML test2")
     return 0
 
 if __name__ == '__main__':
     print "Error: Esto modulo no es independiente. Corra Main."
-
 
 class Screen:
     """Maneja por completo todo lo que se muestra en la pantalla,
@@ -399,4 +409,3 @@ class Screen:
     def run(self, filename):
         global q
         main(filename)
-        
