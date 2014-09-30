@@ -158,19 +158,15 @@ class Pantalla:
     def adopt(self, hijo):
         if isinstance(hijo, Cuadro):
             self.hijos.append(hijo)
-        elif isinstance(hijo, ):
-            pass
         elif isinstance(hijo, Boton):
-            pass
-        elif isinstance(self, Pito):
-            pass
+            
+        #Añadir mas deficiones a este lado pls
         else:
             print "Advertencia: hijo no reconocido:", hijo
     def awaken(self):
         global surface
         Pantalla.pCurrent = self.nombre
         for child in self.hijos:
-            #print '\nDibujando ' + child.name
             child.draw()
         pygame.display.update()
     def sleep(self, color = 'Ivory'):
@@ -255,11 +251,9 @@ class Cuadro:
             surface.blit(text_render, text_rect)
     def get_image(self, imagepath, posx = 0, posy = 0):
         img = load_image(imagepath)
-        #print img
         self.imagenes.append((img[0], img[1], posx, posy))
     def draw_image(self):
         for elem in self.imagenes:
-            #print "Hola", elem[0], self.pos
             img_pos = (self.pos[0] + elem[2], self.pos[1] + elem[3])
             surface.blit(elem[0], img_pos)
             pygame.display.flip()
@@ -293,19 +287,68 @@ class Boton(Cuadro):
             self.color = self.in_color
             self.state = True
 
+class Matrix():
+    """Matriz para el uso de botones y de menues, qque asigna posiciones
+    de los objeteos y devuelve el objeto si se mueve hacia arriba, abajo
+    izquierda, o derecha."""
+    def __init__(self):
+        self.m = [[]]
+        self.position = [0,0]
+    def add_value(self, name, x, y):
+        while x+1 > len(self.m):
+            self.m.append([])
+        for i in range(len(self.m)):
+            while len(self.m[i]) < y +1 :
+                self.m[i].append([])
+        self.m[x][y] = name
+    def print_matrix(self):
+        for i in range(len(self.m)):
+            print self.m[i]
+    def selected_value(self):
+        return self.m[self.position[0]][self.position[1]]
+    def move(self, direction):
+        if direction == 'Up':
+            if self.position[0] == 0:
+                self.position[0] = len(self.m) - 1
+            else:
+                self.position[0] -= 1
+        elif direction == 'Down':
+            if self.position[0] == len(self.m) - 1:
+                self.position[0] = 0
+            else:
+                self.position[0] += 1
+        elif direction == 'Right':
+            if len(self.m[self.position[0]]) - 1 == self.position[1]:
+                self.position[1] = 0
+            else:
+                self.position[1] += 1
+        elif direction == 'Left':
+            if self.position[1] == 0:
+                self.position[1] = len(self.m[self.position[0]]) - 1
+            else:
+                self.position[1] -= 1
+        else:
+            print "Warning: Movimiento no reconocido", direction
+        while self.selected_value() == []:
+            self.move(direction)
+        return self.selected_value()
+
 class input_handler():
     """Por el momento, esta clase solamente se encarga de tratar con
     los botones. Recibe lsa entradas directamente de Pygame, y hace
     los cambios necesario en la pantalla para reflejarlos en pantalla"""
     def __init__(self, pantalla_name):
         self.master = pantalla_name
-    def get_xy(self):
-        """Obtiene los valores xy de las pantallas de master para poder
-        manejarlas"""
+        self.mapa = Matrix()
+    def add_button(self, boton_name, x, y):
+        """Obtiene los valores xy, de uno por uno. Se trata como si 
+        fuera un array, el cual se usara para saber que elementos se
+        tienen arriba, abaja"""
+        if x > len(matrix):
+            for i in range(x):
+                matrix.append([])
+                
         
-        
-             
-
 class Menu(Cuadro):
     """Crea un menu de opciones el cual se puede mover y seleccionar acciones.
     Debe estar en pantalla completa idealmente para ser utilizado.
