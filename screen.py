@@ -148,7 +148,6 @@ class Pantalla:
     pCount = 0
     pCurrent = None
     def __init__(self, nombre, color):
-        #print "Pantalla creada: ", nombre
         self.nombre = nombre
         self.color = color
         self.hijos = []  #Chance toque cambiar esto a futuro
@@ -165,8 +164,8 @@ class Pantalla:
             self.handler.add_button(hijo.name, *hijo.nav_xy)
         else:
             print "Advertencia: hijo no reconocido:", hijo
-    def awaken(self):
-        surface.fill
+    def awaken(self, bg_color = 'Ivory'):
+        surface.fill(colores[bg_color])
         surface.set_alpha(255)
         Pantalla.pCurrent = self.nombre
         for child in self.hijos:
@@ -174,8 +173,8 @@ class Pantalla:
         for boton in self.botones:
             self.botones[boton].draw()
         pygame.display.update()
-    def sleep(self, color = 'Ivory'):
-        surface.fill
+    def sleep(self, bg_color = 'Ivory'):
+        surface.fill(colores[bg_color])
         surface.set_alpha(255)
         pygame.display.update()
     def current(self):
@@ -192,7 +191,6 @@ class Cuadro(object):
     Count = 0
     names = []
     def __init__(self, nombre, color, pos = (0,0,0,0), rounded = 0):
-        #print "Cuadro creado: ", nombre
         Cuadro.Count = Cuadro.Count + 1
         Cuadro.names.append(nombre)
         self.name = nombre
@@ -266,7 +264,6 @@ class Cuadro(object):
             surface.blit(elem[0], img_pos)
             pygame.display.flip()
     def draw(self):
-        print "Dibujando", self.name
         if not self.rounded:
             pygame.draw.rect(surface, self.color, self.pos)
             self.draw_text()
@@ -373,7 +370,6 @@ class input_handler(object):
         if self.mapa.blank() == False:
             last_selected = self.mapa.get_value()
         else:
-            print "No hay nada"
             return
         if mov ==  K_UP:
             self.mapa.move("Up")
@@ -404,7 +400,7 @@ class input_handler(object):
             pantallas[self.master].botones[button_name].do_action()
         else:
             print "Tecla no reconocida:", mov
-        pantallas[self.master].update()
+        pantallas[Pantalla.pCurrent].update()
         
                 
         
@@ -486,7 +482,6 @@ def loadtemplate(filename):
                 valx = int(child.find("ValX").text)
                 valy = int(child.find("ValY").text)
                 b.set_values(color_in, (valx, valy), action )
-                print 'pene'
                 pantallas[filename].adopt(b)
     else:
         print "XML inválido."
@@ -525,16 +520,13 @@ def main(filename):
                     glob.q.put("Putos todos")
                 elif event.key == K_a:
                     screen_state = True
-                    print Pantalla.pCurrent
                     pantallas[Pantalla.pCurrent].awaken()
                 elif event.key == K_s:
                     screen_state = False
                     pantallas[Pantalla.pCurrent].sleep()
                 elif event.key == K_m:
-                    print clock.get_fps()
                     action_parser("OpenXML test2")
                 elif event.key == K_n:
-                    print clock.get_fps()
                     action_parser("OpenXML test")
                 else:
                     pantallas[Pantalla.pCurrent].key(event.key)
