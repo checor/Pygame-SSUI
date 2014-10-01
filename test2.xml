@@ -22,22 +22,6 @@
             <PosY>8</PosY>
         </Imagen>
    </Caja>
-   <Caja Nombre="Caja 2">
-        <Alto>40</Alto>
-        <Ancho>190</Ancho>
-        <PosX>30</PosX>
-        <PosY>150</PosY>
-        <Color>Orange</Color>
-        <Redondez>.2</Redondez>
-        <Texto>
-            <Fuente>None</Fuente>
-            <Alineacion>0</Alineacion>
-            <Tamano>32</Tamano>
-            <Text>Promo: 1x2</Text>
-            <Color>White</Color>
-            <Linea>0</Linea>
-        </Texto>
-    </Caja>
     <Caja Nombre="Caja 3">
         <Alto>100</Alto>
         <Ancho>320</Ancho>
@@ -54,4 +38,44 @@
             <Color>White</Color>
         </Texto>
     </Caja>
+    <Boton Nombre="Boton 1">
+        <Alto>30</Alto>
+        <Ancho>50</Ancho>
+        <PosX>0</PosX>
+        <PosY>200</PosY>
+        <ValX>0</ValX>
+        <ValY>0</ValY>
+        <Color_activo>Red</Color_activo>
+        <Color_inactivo>Light grey</Color_inactivo>
+        <Accion>OpenXML test</Accion>
+        <Redondez>.4</Redondez>
+        <Texto>
+            <Fuente>Ubuntu</Fuente>
+            <Alineacion>-1</Alineacion>
+            <Linea>0</Linea>
+            <Tamano>12</Tamano>
+            <Text>Pantalla 1</Text>
+            <Color>White</Color>
+        </Texto>
+    </Boton>
+    <Boton Nombre="Boton 2">
+        <Alto>30</Alto>
+        <Ancho>50</Ancho>
+        <PosX>100</PosX>
+        <PosY>200</PosY>
+        <ValX>0</ValX>
+        <ValY>1</ValY>
+        <Color_activo>Red</Color_activo>
+        <Color_inactivo>Light grey</Color_inactivo>
+        <Accion>OpenXML test2</Accion>
+        <Redondez>.4</Redondez>
+        <Texto>
+            <Fuente>Ubuntu</Fuente>
+            <Alineacion>-1</Alineacion>
+            <Linea>0</Linea>
+            <Tamano>12</Tamano>
+            <Text>Pantalla 2</Text>
+            <Color>White</Color>
+        </Texto>
+    </Boton>
 </Pantalla>

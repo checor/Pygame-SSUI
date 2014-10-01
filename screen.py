@@ -78,8 +78,9 @@ def action_parser(string):
         else:
             try:
                 loadtemplate(name)
-            except:
+            except Exception,e:
                 print "Fatal: Imposible cargar pantalla", name
+                print str(e)
                 return
             pantallas[name].awaken()
     elif action == 'OpenPopup':
@@ -150,36 +151,41 @@ class Pantalla:
         #print "Pantalla creada: ", nombre
         self.nombre = nombre
         self.color = color
-        self.hijos = []
-        
+        self.hijos = []  #Chance toque cambiar esto a futuro
+        self.botones = {}
+        self.handler = input_handler(self.nombre)
         Pantalla.pCount = Pantalla.pCount + 1
         if Pantalla.pCurrent == None:
             Pantalla.pCurrent = self.nombre
     def adopt(self, hijo):
-        if isinstance(hijo, Cuadro):
+        if type(hijo) is Cuadro:
             self.hijos.append(hijo)
-        elif isinstance(hijo, Boton):
-            
-        #Añadir mas deficiones a este lado pls
+        elif type(hijo) is Boton:
+            self.botones[hijo.name] = hijo
+            self.handler.add_button(hijo.name, *hijo.nav_xy)
         else:
             print "Advertencia: hijo no reconocido:", hijo
     def awaken(self):
-        global surface
+        surface.fill
+        surface.set_alpha(255)
         Pantalla.pCurrent = self.nombre
         for child in self.hijos:
             child.draw()
+        for boton in self.botones:
+            self.botones[boton].draw()
         pygame.display.update()
     def sleep(self, color = 'Ivory'):
-        surface.fill(colores[color])
+        surface.fill
+        surface.set_alpha(255)
         pygame.display.update()
     def current(self):
         return Pantalla.pCurrent
     def update(self):
         self.awaken()
-    
-#class PopupMenu
+    def key(self, tecla):
+        self.handler.move(tecla)
 
-class Cuadro:
+class Cuadro(object):
     """Clase padre de una pantalla. Lleva todos los atributos minimos
     necesarios para la utilizacion de un elemento en la pantalla"""
     global surface
@@ -196,6 +202,8 @@ class Cuadro:
         self.rounded = rounded
         self.textos = []
         self.imagenes = []
+    def name(self):
+        return self.name
     def get_text(self, string, tamano, fuente, color, **kwargs):
         """Obtiene tiene texto para mostrar. En la varibale pos,
         0 es centrado, 1 es derecha, 2 es izquierda
@@ -258,6 +266,7 @@ class Cuadro:
             surface.blit(elem[0], img_pos)
             pygame.display.flip()
     def draw(self):
+        print "Dibujando", self.name
         if not self.rounded:
             pygame.draw.rect(surface, self.color, self.pos)
             self.draw_text()
@@ -278,16 +287,20 @@ class Boton(Cuadro):
         self.nav_xy = nav_xy
         self.action = action
     def do_action(self):
+        """Sucede cuando el boton se presiona. La forma en la cual se cuente
+        que se presione depende de input_handler, no del boton per se."""
         action_parser(self.action)
-    def set_state(state):
+    def set_s(self, state):
+        """Este estado se refiere a si se encuentra seleccionado o no. El
+        cambio de estado cambia su color."""
         if state == True:
             self.color = self.ac_color
             self.state = False
         else:
             self.color = self.in_color
             self.state = True
-
-class Matrix():
+        
+class Matrix(object):
     """Matriz para el uso de botones y de menues, qque asigna posiciones
     de los objeteos y devuelve el objeto si se mueve hacia arriba, abajo
     izquierda, o derecha."""
@@ -301,11 +314,19 @@ class Matrix():
             while len(self.m[i]) < y +1 :
                 self.m[i].append([])
         self.m[x][y] = name
+    def blank(self):
+        if len(self.m[0]) == 0 and len(self.m) == 1:
+            return True
+        else:
+            return False
     def print_matrix(self):
         for i in range(len(self.m)):
             print self.m[i]
-    def selected_value(self):
-        return self.m[self.position[0]][self.position[1]]
+    def get_value(self):
+        try:
+            return self.m[self.position[0]][self.position[1]]
+        except:
+            return None
     def move(self, direction):
         if direction == 'Up':
             if self.position[0] == 0:
@@ -328,25 +349,63 @@ class Matrix():
             else:
                 self.position[1] -= 1
         else:
-            print "Warning: Movimiento no reconocido", direction
-        while self.selected_value() == []:
+            print "Warning: Movimiento no reconocido:", direction
+        while self.get_value() == []:
             self.move(direction)
-        return self.selected_value()
+        return self.get_value()
 
-class input_handler():
+class input_handler(object):
     """Por el momento, esta clase solamente se encarga de tratar con
     los botones. Recibe lsa entradas directamente de Pygame, y hace
     los cambios necesario en la pantalla para reflejarlos en pantalla"""
     def __init__(self, pantalla_name):
         self.master = pantalla_name
         self.mapa = Matrix()
-    def add_button(self, boton_name, x, y):
+        self.active = True
+    def add_button(self, name, x, y):
         """Obtiene los valores xy, de uno por uno. Se trata como si 
         fuera un array, el cual se usara para saber que elementos se
         tienen arriba, abaja"""
-        if x > len(matrix):
-            for i in range(x):
-                matrix.append([])
+        self.mapa.add_value(name, x,y)
+    def state(self, act=True):  #Que mierda es esto?
+        self.active = act
+    def move(self, mov):  #Tiene que ser un event.key
+        if self.mapa.blank() == False:
+            last_selected = self.mapa.get_value()
+        else:
+            print "No hay nada"
+            return
+        if mov ==  K_UP:
+            self.mapa.move("Up")
+            button_name = self.mapa.get_value()
+            pantallas[self.master].botones[last_selected].set_s(False)
+            self.last_selected = button_name
+            pantallas[self.master].botones[button_name].set_s(True)
+        elif mov ==  K_DOWN:
+            self.mapa.move("Down")
+            button_name = self.mapa.get_value()
+            pantallas[self.master].botones[last_selected].set_s(False)
+            self.last_selected = button_name
+            pantallas[self.master].botones[button_name].set_s(True)
+        elif mov ==  K_LEFT:
+            self.mapa.move("Left")
+            button_name = self.mapa.get_value()
+            pantallas[self.master].botones[last_selected].set_s(False)
+            self.last_selected = button_name
+            pantallas[self.master].botones[button_name].set_s(True)
+        elif mov == K_RIGHT:
+            self.mapa.move("Right")
+            button_name = self.mapa.get_value()
+            pantallas[self.master].botones[last_selected].set_s(False)
+            self.last_selected = button_name
+            pantallas[self.master].botones[button_name].set_s(True)
+        elif mov ==  K_RETURN:
+            button_name = self.mapa.get_value()
+            pantallas[self.master].botones[button_name].do_action()
+        else:
+            print "Tecla no reconocida:", mov
+        pantallas[self.master].update()
+        
                 
         
 class Menu(Cuadro):
@@ -380,7 +439,6 @@ def loadtemplate(filename):
                 color = get_color(color)
                 rounded = float(child.find('Redondez').text)
                 c = Cuadro(str(child.attrib['Nombre']), color,  posc, rounded)
-                pantallas[filename].adopt(c)
                 for t in child.findall("Texto"):
                     ttext = t.find("Text").text
                     tsize = int(t.find("Tamano").text)
@@ -395,6 +453,41 @@ def loadtemplate(filename):
                     img_posx = int(imag.find("PosX").text)
                     img_posy = int(imag.find("PosY").text)
                     c.get_image(imagen, img_posx, img_posy)
+                pantallas[filename].adopt(c)
+            for child in root.findall("Boton"):
+                x = child.find('PosX')
+                y = child.find('PosY')
+                al = child.find('Alto')
+                an = child.find('Ancho')
+                posc = (int(x.text), int(y.text), int(an.text), int(al.text))
+                color = child.find('Color_activo').text
+                color = get_color(color)
+                rounded = float(child.find('Redondez').text)
+                b = Boton(str(child.attrib['Nombre']), color,  posc, rounded)
+                pantallas[filename].adopt(c)
+                for t in child.findall("Texto"):
+                    ttext = t.find("Text").text
+                    tsize = int(t.find("Tamano").text)
+                    tfont = t.find("Fuente").text
+                    tcolor = t.find("Color").text
+                    tline = int(t.find("Linea").text)
+                    talign = int(t.find("Alineacion").text)
+                    b.get_text(ttext, tsize, tfont, tcolor, line=
+                    tline, align=talign)
+                for imag in child.findall("Imagen"):
+                    imagen = imag.find("Filename").text
+                    img_posx = int(imag.find("PosX").text)
+                    img_posy = int(imag.find("PosY").text)
+                    b.get_image(imagen, img_posx, img_posy)
+                color_in = child.find("Color_inactivo").text
+                #Acciones especiales para el boton
+                color_in = colores[color_in]
+                action = child.find("Accion").text
+                valx = int(child.find("ValX").text)
+                valy = int(child.find("ValY").text)
+                b.set_values(color_in, (valx, valy), action )
+                print 'pene'
+                pantallas[filename].adopt(b)
     else:
         print "XML inválido."
 
@@ -411,10 +504,11 @@ def main(filename):
     running = True
     screen_state = True
     while running:
-        clock.tick(30)
+        clock.tick(60)
         if screen_state==True:
             try:
-                pantallas[Pantalla.pCurrent].update()
+                pass
+                #pantallas[Pantalla.pCurrent].update()
             except:
                 pass
         for event in pygame.event.get():
@@ -439,12 +533,17 @@ def main(filename):
                 elif event.key == K_m:
                     print clock.get_fps()
                     action_parser("OpenXML test2")
+                elif event.key == K_n:
+                    print clock.get_fps()
+                    action_parser("OpenXML test")
+                else:
+                    pantallas[Pantalla.pCurrent].key(event.key)
     return 0
 
 if __name__ == '__main__':
     print "Error: Esto modulo no es independiente. Corra Main."
 
-class Screen:
+class Screen(object):
     """Maneja por completo todo lo que se muestra en la pantalla,
     mediante el uso de pygame. No confundir con clase Pantalla."""
     def __init__(self):
