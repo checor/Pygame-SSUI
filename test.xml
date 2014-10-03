@@ -56,12 +56,12 @@
     </Caja>
     <Boton Nombre="Boton 1">
         <Alto>30</Alto>
-        <Ancho>50</Ancho>
+        <Ancho>100</Ancho>
         <PosX>0</PosX>
         <PosY>200</PosY>
         <ValX>0</ValX>
         <ValY>0</ValY>
-        <Color_activo>Red</Color_activo>
+        <Color_activo>Blue</Color_activo>
         <Color_inactivo>Light grey</Color_inactivo>
         <Accion>OpenXML test</Accion>
         <Redondez>.4</Redondez>
@@ -76,12 +76,12 @@
     </Boton>
     <Boton Nombre="Boton 2">
         <Alto>30</Alto>
-        <Ancho>50</Ancho>
+        <Ancho>100</Ancho>
         <PosX>100</PosX>
         <PosY>200</PosY>
         <ValX>0</ValX>
         <ValY>1</ValY>
-        <Color_activo>Red</Color_activo>
+        <Color_activo>Blue</Color_activo>
         <Color_inactivo>Light grey</Color_inactivo>
         <Accion>OpenXML test2</Accion>
         <Redondez>.4</Redondez>

@@ -4,9 +4,6 @@ Created on Thu Jul 10 19:24:52 2014
 
 @author: checor@gmail.com
 
-TODO: Cambiar la forma de checar los diccionarios para hacerlo mas
-robusto
-
 Pensar en la forma de hacer updates
 """
 
@@ -60,7 +57,7 @@ def text_parser(string):
         return string
 
     for i, j  in zip(indicadores, variables):
-        val = glob.dicc[j]
+        val = glob.get_variable(j)
 
         string = string.replace(i, str(val), 1)
     return re.findall ( """["'](.*?)['"]""", string, re.DOTALL)[0]
@@ -160,13 +157,15 @@ class Pantalla:
         if type(hijo) is Cuadro:
             self.hijos.append(hijo)
         elif type(hijo) is Boton:
+            if len(self.botones) == 0:
+                hijo.set_s(True)
+            else:
+                hijo.set_s(False)
             self.botones[hijo.name] = hijo
             self.handler.add_button(hijo.name, *hijo.nav_xy)
         else:
             print "Advertencia: hijo no reconocido:", hijo
     def awaken(self, bg_color = 'Ivory'):
-        surface.fill(colores[bg_color])
-        surface.set_alpha(255)
         Pantalla.pCurrent = self.nombre
         for child in self.hijos:
             child.draw()
@@ -359,11 +358,13 @@ class input_handler(object):
         self.master = pantalla_name
         self.mapa = Matrix()
         self.active = True
+        self.empty = True
     def add_button(self, name, x, y):
         """Obtiene los valores xy, de uno por uno. Se trata como si 
         fuera un array, el cual se usara para saber que elementos se
-        tienen arriba, abaja"""
+        tienen arriba, abajo, a la izquierda, o a la derecha"""
         self.mapa.add_value(name, x,y)
+        self.empty = False
     def state(self, act=True):  #Que mierda es esto?
         self.active = act
     def move(self, mov):  #Tiene que ser un event.key
@@ -499,11 +500,10 @@ def main(filename):
     running = True
     screen_state = True
     while running:
-        clock.tick(60)
+        clock.tick(30)
         if screen_state==True:
             try:
-                pass
-                #pantallas[Pantalla.pCurrent].update()
+                pantallas[Pantalla.pCurrent].update()
             except:
                 pass
         for event in pygame.event.get():
@@ -517,7 +517,6 @@ def main(filename):
                     running = False
                 elif event.key == K_q:
                     print "Press ESC to quit"
-                    glob.q.put("Putos todos")
                 elif event.key == K_a:
                     screen_state = True
                     pantallas[Pantalla.pCurrent].awaken()

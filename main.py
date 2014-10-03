@@ -10,21 +10,18 @@ import threading, os, time
 
 import screen, config, glob
 
-
 def main():
-    #Tests
-    glob.dicc["venta"] = 9.9
-    #/Tests
     
     scr = screen.Screen()
     scr_t = threading.Thread(target=scr.run, args=('test.xml',))
     scr_t.start()
     
     #Test
+    glob.set_variable('venta', 0)
     while True:
         time.sleep(.1)
-        glob.dicc['venta']+= 0.1
-        if glob.dicc['venta'] > 30:
+        glob.var_sum('venta', 1)
+        if glob.get_variable('venta') >= 30:
             break
     return 0
 
