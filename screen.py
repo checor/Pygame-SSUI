@@ -109,7 +109,8 @@ def RoundRect(surface,rect,color,radius=0.4):
 
     circle       = pygame.Surface([min(rect.size)*3]*2,SRCALPHA)
     pygame.draw.ellipse(circle,(0,0,0),circle.get_rect(),0)
-    circle       = pygame.transform.smoothscale(circle,[int(min(rect.size)*radius)]*2)
+    circle       = pygame.transform.smoothscale(circle,
+		   [int(min(rect.size)*radius)]*2)
 
     radius              = rectangle.blit(circle,(0,0))
     radius.bottomright  = rect.bottomright
@@ -151,6 +152,8 @@ class Pantalla:
         self.botones = {}
         self.handler = input_handler(self.nombre)
         Pantalla.pCount = Pantalla.pCount + 1
+        self.popup_state = False
+        self.popup = None
         if Pantalla.pCurrent == None:
             Pantalla.pCurrent = self.nombre
     def adopt(self, hijo):
@@ -178,10 +181,15 @@ class Pantalla:
         pygame.display.update()
     def current(self):
         return Pantalla.pCurrent
+    def popup_toggle(self):
+        self.popup_state = True
     def update(self):
         self.awaken()
     def key(self, tecla):
-        self.handler.move(tecla)
+        if self.popup_state:
+            self.popup.get_key(tecla)
+        else:
+            self.handler.move(tecla)
 
 class Cuadro(object):
     """Clase padre de una pantalla. Lleva todos los atributos minimos
@@ -350,6 +358,10 @@ class Matrix(object):
             self.move(direction)
         return self.get_value()
 
+#Mala implementacion! La pantalla debe hacerse cargo de sus propios botones
+#y de sus propios elementos para dibujarse. De otro modo no se lograra usar
+#clase en varias objetos que no sean Pantalla.
+
 class input_handler(object):
     """Por el momento, esta clase solamente se encarga de tratar con
     los botones. Recibe lsa entradas directamente de Pygame, y hace
@@ -409,10 +421,38 @@ class Menu(Cuadro):
     """Crea un menu de opciones el cual se puede mover y seleccionar acciones.
     Debe estar en pantalla completa idealmente para ser utilizado.
     El text agregado sirve para el título del menú."""
-    def add_option(self, option):
+    def add_option(self, option, action=None):
+        """Agrega una opcion que se mostrara en el menu
+        """
         pass
-    def set_action(self, action):
-        pass
+
+class Popup(Cuadro):
+    """Elemento el cual se coloca al frente de la pantalla, indicando algun
+    error o adventencia. Se define un tiempo el cual va a estar activo, toma
+    control del cualquier input en la pantalla, y tiene bonotes para aceptar
+    o quitar la opcion. Este aparece siempre centrada en la patnalla
+    """
+    def __init__(self, nombre, color, tamano, tiempo = 5):
+        self.nombre = nombre
+        self.color = color
+        self.tamano = tamano
+        self.tiempo = time
+        self.botones = []
+        self.textos = []
+        self.imagenes = []
+        cx = surface.get_rect().centerx
+        cy = surface.get_rect().centery
+        pos = (cx - tamano[0] / 2, cy - tamano[1] / 2, tamano[0], tamano[1])
+        self.gotImage = False  #Parece que no se utiliza
+        self.input_handler = input_handler()
+    def add_button(self, button):
+        self.botones[button.name] = button
+        self.input_handler.add_button(button.name, *button.nav_xy)
+    def get_key(self, key):
+        if len(botones) == 0:
+            return
+        else:
+            self.input_handler.move(tecla)
 
 def get_color(color):
     global colores
