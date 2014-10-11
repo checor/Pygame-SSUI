@@ -18,11 +18,13 @@ def change_variable(name, val):
 
 def var_sum(name, val):
     if name in dicc:
-        dicc[name] += val        
+        dicc[name] += val     
+        dicc_changes[name] = True    
 
-def var_changed(name, q):
+def var_changed(name):
     if name in dicc:
         if dicc_changes[name] == True:
+            print name, "changed"
             dicc_changes[name] = False
             return True
         else:

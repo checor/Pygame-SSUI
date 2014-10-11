@@ -43,25 +43,6 @@ def get_font(font, size):
         return f
 """Fin de variables"""
 
-def text_parser(string):
-    #Ejemplo 
-    #"""""Las aventuras de %s, el %s con pelos" % chicho nino"""
-    exp_re = re.compile("%[^ ]")
-    split_re = re.compile("(?<=% )(.*)").search(string)
-    var_re = re.compile("(\w+)")
-    
-    indicadores = exp_re.findall(string)  # %s , %s
-    try:
-        variables = var_re.findall(split_re.groups()[0])  #chicho , nino
-    except:
-        return string
-
-    for i, j  in zip(indicadores, variables):
-        val = glob.get_variable(j)
-
-        string = string.replace(i, str(val), 1)
-    return re.findall ( """["'](.*?)['"]""", string, re.DOTALL)[0]
-
 def action_parser(string):
     """Herramienta que nos permite realizar acciones provenientes de un
     botón un menú, o cualquiero otro sistema. Obtiene un string,
@@ -110,7 +91,7 @@ def RoundRect(surface,rect,color,radius=0.4):
     circle       = pygame.Surface([min(rect.size)*3]*2,SRCALPHA)
     pygame.draw.ellipse(circle,(0,0,0),circle.get_rect(),0)
     circle       = pygame.transform.smoothscale(circle,
-		   [int(min(rect.size)*radius)]*2)
+           [int(min(rect.size)*radius)]*2)
 
     radius              = rectangle.blit(circle,(0,0))
     radius.bottomright  = rect.bottomright
@@ -140,7 +121,7 @@ def load_image(name, colorkey=None):
 #Objetos globales
 pantallas = {}
 
-class Pantalla:
+class Pantalla(object):
     """Crea un objeto para la pantalla. Lleva como hijos los cuadros que
     necesita y los dibujara con sus valores"""
     pCount = 0
@@ -152,8 +133,9 @@ class Pantalla:
         self.botones = {}
         self.handler = input_handler(self.nombre)
         Pantalla.pCount = Pantalla.pCount + 1
-        self.popup_state = False
-        self.popup = None
+        self.popup_state = False  #?
+        self.popup = None  #?
+        self.variables = []
         if Pantalla.pCurrent == None:
             Pantalla.pCurrent = self.nombre
     def adopt(self, hijo):
@@ -183,13 +165,30 @@ class Pantalla:
         return Pantalla.pCurrent
     def popup_toggle(self):
         self.popup_state = True
-    def update(self):
-        self.awaken()
     def key(self, tecla):
         if self.popup_state:
             self.popup.get_key(tecla)
         else:
             self.handler.move(tecla)
+    def update_check(self):
+        if len(self.variables) > 0:
+            rects = []
+            for elem in self.variables:
+                if glob.var_changed(elem[0]):
+                    rects.append(elem[1])
+            if len(rects) > 0:
+                print rects
+                pygame.display.update()
+    def var_add(self, var, rect):
+        """Añade una variable la cual va a ser monitoreada por la
+        pantalla, y actualizara esa parte de la pantalla en caso de
+        tenga un cambio, mediante update_check()
+        
+        Argumentos:
+            -var: variable em glob.py a monitorear
+            -rect: area donde se encuentra la variable
+        """
+        self.variables.append((var, rect))
 
 class Cuadro(object):
     """Clase padre de una pantalla. Lleva todos los atributos minimos
@@ -207,8 +206,7 @@ class Cuadro(object):
         self.rounded = rounded
         self.textos = []
         self.imagenes = []
-    def name(self):
-        return self.name
+        self.variables = []
     def get_text(self, string, tamano, fuente, color, **kwargs):
         """Obtiene tiene texto para mostrar. En la varibale pos,
         0 es centrado, 1 es derecha, 2 es izquierda
@@ -217,9 +215,25 @@ class Cuadro(object):
         self.textos.append((str(string), tamano, fuente, kwargs))
     def got_text(self):
         return len(self.textos)
+    def text_parser(self, string):
+        #Ejemplo 
+        #"""""Las aventuras de %s, el %s con pelos" % chicho nino"""
+        exp_re = re.compile("%[^ ]")
+        split_re = re.compile("(?<=% )(.*)").search(string)
+        var_re = re.compile("(\w+)")
+        
+        indicadores = exp_re.findall(string)  # %s , %s
+        try:
+            self.variables = var_re.findall(split_re.groups()[0])
+        except:
+            return string
+        for i, j  in zip(indicadores, self.variables):
+            val = glob.get_variable(j)
+            string = string.replace(i, str(val), 1)
+        return re.findall ( """["'](.*?)['"]""", string, re.DOTALL)[0]
     def draw_text(self):
         for elem in self.textos:
-            text = text_parser(elem[0])
+            text = self.text_parser(elem[0])
             t = get_font(elem[2], elem[1])
             text_render = t.render(text, 1, (0,0,0))
             text_rect = text_render.get_rect()
@@ -262,6 +276,9 @@ class Cuadro(object):
             else:
                 print "Fatal! Texto mal alineado!!", elem[-1]
             surface.blit(text_render, text_rect)
+            #Anadir watches para checar si cambia variable
+            for elem in self.variables:
+                pantallas[Pantalla.pCurrent].var_add(elem, text_rect)
     def get_image(self, imagepath, posx = 0, posy = 0):
         img = load_image(imagepath)
         self.imagenes.append((img[0], img[1], posx, posy))
@@ -527,50 +544,6 @@ def loadtemplate(filename):
     else:
         print "XML inválido."
 
-def main(filename):
-    pygame.init()
-    pygame.font.init()
-    noFont = pygame.font.SysFont(None, 8)
-
-    clock = pygame.time.Clock()
-    
-    surface.fill(colores['Ivory'])
-    loadtemplate(filename)
-    pygame.display.update()
-    running = True
-    screen_state = True
-    while running:
-        clock.tick(30)
-        if screen_state==True:
-            try:
-                pantallas[Pantalla.pCurrent].update()
-            except:
-                pass
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    print "\nBye Bye"
-                    pygame.quit()
-                    running = False
-                elif event.key == K_q:
-                    print "Press ESC to quit"
-                elif event.key == K_a:
-                    screen_state = True
-                    pantallas[Pantalla.pCurrent].awaken()
-                elif event.key == K_s:
-                    screen_state = False
-                    pantallas[Pantalla.pCurrent].sleep()
-                elif event.key == K_m:
-                    action_parser("OpenXML test2")
-                elif event.key == K_n:
-                    action_parser("OpenXML test")
-                else:
-                    pantallas[Pantalla.pCurrent].key(event.key)
-    return 0
-
 if __name__ == '__main__':
     print "Error: Esto modulo no es independiente. Corra Main."
 
@@ -581,4 +554,42 @@ class Screen(object):
         self.running = False
     def run(self, filename):
         global q
-        main(filename)
+        pygame.init()
+        pygame.font.init()
+        noFont = pygame.font.SysFont(None, 8)
+
+        clock = pygame.time.Clock()
+        
+        surface.fill(colores['Ivory'])
+        loadtemplate(filename)
+        pygame.display.update()
+        running = True
+        screen_state = True
+        while running:
+            clock.tick(30)
+            if Pantalla.pCurrent != None:
+                pantallas[Pantalla.pCurrent].update_check()
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == KEYDOWN:
+                    if event.key == K_ESCAPE:
+                        print "\nBye Bye"
+                        pygame.quit()
+                        running = False
+                    elif event.key == K_q:
+                        print "Press ESC to quit"
+                    elif event.key == K_a:
+                        screen_state = True
+                        pantallas[Pantalla.pCurrent].awaken()
+                    elif event.key == K_s:
+                        screen_state = False
+                        pantallas[Pantalla.pCurrent].sleep()
+                    elif event.key == K_m:
+                        action_parser("OpenXML test2")
+                    elif event.key == K_n:
+                        action_parser("OpenXML test")
+                    else:
+                        pantallas[Pantalla.pCurrent].key(event.key)
+        return 0
