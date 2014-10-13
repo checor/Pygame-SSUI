@@ -135,7 +135,7 @@ class Pantalla(object):
         Pantalla.pCount = Pantalla.pCount + 1
         self.popup_state = False  #?
         self.popup = None  #?
-        self.variables = []
+        self.dirty_rects = []
         if Pantalla.pCurrent == None:
             Pantalla.pCurrent = self.nombre
     def adopt(self, hijo):
@@ -161,8 +161,6 @@ class Pantalla(object):
         surface.fill(colores[bg_color])
         surface.set_alpha(255)
         pygame.display.update()
-    def current(self):
-        return Pantalla.pCurrent
     def popup_toggle(self):
         self.popup_state = True
     def key(self, tecla):
@@ -170,25 +168,20 @@ class Pantalla(object):
             self.popup.get_key(tecla)
         else:
             self.handler.move(tecla)
-    def update_check(self):
-        if len(self.variables) > 0:
-            rects = []
-            for elem in self.variables:
-                if glob.var_changed(elem[0]):
-                    rects.append(elem[1])
-            if len(rects) > 0:
-                print rects
-                pygame.display.update()
-    def var_add(self, var, rect):
-        """Añade una variable la cual va a ser monitoreada por la
-        pantalla, y actualizara esa parte de la pantalla en caso de
-        tenga un cambio, mediante update_check()
+    def update(self):
+        for child in self.hijos:
+            child.redraw()
+        if len(self.dirty_rects) > 0:
+            pygame.display.update(self.dirty_rects)
+        self.dirty_rects = []
+    def rect_add(self, rect):
+        """Añade un rectangulo el cual se va a actualizar al cambio de
+        cuadro, mediante update()
         
         Argumentos:
-            -var: variable em glob.py a monitorear
             -rect: area donde se encuentra la variable
         """
-        self.variables.append((var, rect))
+        self.dirty_rects.append(rect)
 
 class Cuadro(object):
     """Clase padre de una pantalla. Lleva todos los atributos minimos
@@ -202,19 +195,18 @@ class Cuadro(object):
         self.name = nombre
         self.pos = pos
         self.color = color
-        self.gotImage = False
+        self.rendered = False
         self.rounded = rounded
-        self.textos = []
+        self.textos = {}
         self.imagenes = []
-        self.variables = []
+        self.variables = {}
+        self.rects = {}
     def get_text(self, string, tamano, fuente, color, **kwargs):
         """Obtiene tiene texto para mostrar. En la varibale pos,
         0 es centrado, 1 es derecha, 2 es izquierda
         
         pos aun no se encuentra implementado                        """
-        self.textos.append((str(string), tamano, fuente, kwargs))
-    def got_text(self):
-        return len(self.textos)
+        self.textos[string] = (string, tamano, fuente, kwargs)
     def text_parser(self, string):
         #Ejemplo 
         #"""""Las aventuras de %s, el %s con pelos" % chicho nino"""
@@ -224,17 +216,28 @@ class Cuadro(object):
         
         indicadores = exp_re.findall(string)  # %s , %s
         try:
-            self.variables = var_re.findall(split_re.groups()[0])
+            self.variables[string] = var_re.findall(split_re.groups()[0])
         except:
             return string
-        for i, j  in zip(indicadores, self.variables):
+        for i, j  in zip(indicadores, self.variables[string]):
             val = glob.get_variable(j)
             string = string.replace(i, str(val), 1)
         return re.findall ( """["'](.*?)['"]""", string, re.DOTALL)[0]
-    def draw_text(self):
-        for elem in self.textos:
-            text = self.text_parser(elem[0])
+    def check_changes(self, string):
+        if string in self.variables:
+            for elem in self.variables[string]:
+                if glob.var_changed(elem):
+                    pantallas[Pantalla.pCurrent].\
+                    rect_add(self.rects[string][1])
+                    return True
+        return False
+    def text_render(self, target = None):
+        """AUN NO IMPLEMENTADO
+        Se va a encargar de darle los rectangulos adecuados a cada
+        cuadro"""
+        for elem in self.textos.itervalues():
             t = get_font(elem[2], elem[1])
+            text = self.text_parser(elem[0])
             text_render = t.render(text, 1, (0,0,0))
             text_rect = text_render.get_rect()
             if 'posx' in elem[-1] and 'posy' in elem[-1]:  # elem[-1] = kwargs
@@ -275,10 +278,34 @@ class Cuadro(object):
                 text_rect.top = y
             else:
                 print "Fatal! Texto mal alineado!!", elem[-1]
-            surface.blit(text_render, text_rect)
-            #Anadir watches para checar si cambia variable
-            for elem in self.variables:
-                pantallas[Pantalla.pCurrent].var_add(elem, text_rect)
+            self.rects[elem[0]] = (text_render, text_rect)
+        self.rendered = True
+    def draw_text(self,target = None, reparse = False):
+        """Dibuja el texto en la pantalla. Se le puede indicar un
+        target, esto es, el elemento el cual se debe de dibujar. Si no
+        se indica, se redibuja todos.
+        
+        target: Indica si solo se dibujara de nuevo un elemento o todos.
+                En caso de ser None, se dibuja todo.
+                
+        reparse: Si se indica True, se vuelve a renderizar el texto.
+                 Este valor debe ser positivo para variables que hayan
+                 sufrido de algún cambio.
+        """
+        if self.rendered == False or reparse == True:
+            self.text_render()
+        if target != None:
+            textos = self.textos
+        else:
+            textos = self.textos
+        for elem in textos.itervalues():
+            surface.blit(*self.rects[elem[0]])
+    def redraw(self):
+        for elem in self.textos.itervalues():
+            if self.check_changes(elem[0]):
+                pygame.draw.rect(surface, self.color, 
+                self.rects[elem[0]][1])
+                self.draw_text(elem[0], True)
     def get_image(self, imagepath, posx = 0, posy = 0):
         img = load_image(imagepath)
         self.imagenes.append((img[0], img[1], posx, posy))
@@ -432,8 +459,6 @@ class input_handler(object):
             print "Tecla no reconocida:", mov
         pantallas[Pantalla.pCurrent].update()
         
-                
-        
 class Menu(Cuadro):
     """Crea un menu de opciones el cual se puede mover y seleccionar acciones.
     Debe estar en pantalla completa idealmente para ser utilizado.
@@ -480,7 +505,6 @@ def loadtemplate(filename):
     tree = ET.parse(filename)
     root = tree.getroot()
     if root.tag == "Pantalla":
-            print "Abirendo " + root.tag
             p = Pantalla(filename, colores['White'])  # WAT
             pantallas[filename] = p
             for child in root.findall("Caja"):
@@ -568,7 +592,7 @@ class Screen(object):
         while running:
             clock.tick(30)
             if Pantalla.pCurrent != None:
-                pantallas[Pantalla.pCurrent].update_check()
+                pantallas[Pantalla.pCurrent].update()
             for event in pygame.event.get():
                 if event.type == QUIT:
                     pygame.quit()

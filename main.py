@@ -8,7 +8,9 @@
   
 import threading, os, time
 
-import screen, config, glob
+import screen
+import config
+import glob
 
 def main():
     
@@ -20,7 +22,7 @@ def main():
     glob.set_variable('venta', 0)
     while True:
         time.sleep(.1)
-        glob.var_sum('venta', 1)
+        glob.var_sum('venta', .1)
         if glob.get_variable('venta') >= 30:
             break
     return 0
