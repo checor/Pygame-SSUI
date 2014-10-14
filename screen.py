@@ -4,7 +4,7 @@ Created on Thu Jul 10 19:24:52 2014
 
 @author: checor@gmail.com
 
-Pensar en la forma de hacer updates
+Mejorar la documentacion
 """
 
 import pygame, sys, re
@@ -14,10 +14,8 @@ import os
 
 import glob
 
-"""
-Variables para pygame
-Estas seran movidas a un libreria mas adelante
-"""
+#Variables para Pygame
+#modificar dependiendo de la pantalla a utilizar
 size = width, height = 320, 240  #Elegimos el tamaño de la pantalla
 surface = pygame.display.set_mode((size),0,24)  #Pantalla completa a futuro
 pygame.display.set_caption("Newtech Software")  #Nombre de la ventana
@@ -26,7 +24,7 @@ pygame.display.set_caption("Newtech Software")  #Nombre de la ventana
 #Checar los colores, ya que se repite uno[]
 colores = {"Blue": (0, 170, 204) , "Orange": (255,78,0) , "Brick":
                (205,103,35), "Red":(185,0,0), "Green":(95,155,10),
-               "Black" : (0,0,0) , "Warm grey" : (51,51,51) , "Warm grey" :
+               "Black" : (0,0,0) , "Warm grey" : (51,51,51) , "Grey" :
                (44,57,59) , "Light grey" : (244,244,244) , "Ivory" :
                (234,234,231) , "White" : (255,255,255) }
 
@@ -41,65 +39,21 @@ def get_font(font, size):
             print "Advertencia: Fuente ", font, " no encontrada"
             return pygame.font.SysFont(None, size)
         return f
-"""Fin de variables"""
-
 #Definiciones realtivas a la pantalla
-
-def RoundRect(surface,rect,color,radius=0.4):
-
-    """
-    AAfilledRoundedRect(surface,rect,color,radius=0.4)
-
-    surface : destination
-    rect    : rectangle
-    color   : rgb or rgba
-    radius  : 0 <= radius <= 1
-    """
-
-    rect         = Rect(rect)
-    color        = Color(*color)
-    alpha        = color.a
-    color.a      = 0
-    pos          = rect.topleft
-    rect.topleft = 0,0
-    rectangle    = pygame.Surface(rect.size,SRCALPHA)
-
-    circle       = pygame.Surface([min(rect.size)*3]*2,SRCALPHA)
-    pygame.draw.ellipse(circle,(0,0,0),circle.get_rect(),0)
-    circle       = pygame.transform.smoothscale(circle,
-           [int(min(rect.size)*radius)]*2)
-
-    radius              = rectangle.blit(circle,(0,0))
-    radius.bottomright  = rect.bottomright
-    rectangle.blit(circle,radius)
-    radius.topright     = rect.topright
-    rectangle.blit(circle,radius)
-    radius.bottomleft   = rect.bottomleft
-    rectangle.blit(circle,radius)
-
-    rectangle.fill((0,0,0),rect.inflate(-radius.w,0))
-    rectangle.fill((0,0,0),rect.inflate(0,-radius.h))
-
-    rectangle.fill(color,special_flags=BLEND_RGBA_MAX)
-    rectangle.fill((255,255,255,alpha),special_flags=BLEND_RGBA_MIN)
-
-    return surface.blit(rectangle,pos)
-
-def load_image(name, colorkey=None):
-    fullname = os.path.join('data', name)
-    try:
-        image = pygame.image.load(fullname)
-    except pygame.error, message:
-        print 'No se pudo cargar la imamen: ', fullname
-    image = image.convert_alpha()
-    return image, image.get_rect()
 
 #Objetos globales
 pantallas = {}
 
 class Pantalla(object):
     """Crea un objeto para la pantalla. Lleva como hijos los cuadros que
-    necesita y los dibujara con sus valores"""
+    necesita y los dibujara con sus valores
+
+    nombre: identificador de la pantalla en el diccionario. No se debe repetir,
+            se recomienda utilizar el nombre del archivo XML cargado.
+
+    color: color de fondo de la pantalla. Al parecer no esta bien implementado.
+
+    """
     pCount = 0
     pCurrent = None
     def __init__(self, nombre, color):
@@ -116,6 +70,11 @@ class Pantalla(object):
         if Pantalla.pCurrent == None:
             Pantalla.pCurrent = self.nombre
     def adopt(self, hijo):
+        """'Adopta' un objeto el cual se va a mostrar en la pantalla, como un
+        cuadro o un boton. Estos serán mostrados en pantalla al utlizar awaken
+
+        hijo: El objeto el cual se va a integrar a a la pantalla.
+        """
         if type(hijo) is Cuadro:
             self.hijos.append(hijo)
         elif type(hijo) is Boton:
@@ -128,6 +87,11 @@ class Pantalla(object):
         else:
             print "Advertencia: hijo no reconocido:", hijo
     def awaken(self, bg_color = 'Ivory'):
+        """Muestra este objeto en la pantalla. Antes de mostrarlo, la pantalla
+        anterior debe encargarse de limpiar la surface con self.sleep()
+
+        bg_color: Color a utilizar de fondo. Opcional. No implementado.
+        """
         Pantalla.pCurrent = self.nombre
         self.state = True
         for child in self.hijos:
@@ -136,19 +100,34 @@ class Pantalla(object):
             self.botones[boton].draw()
         pygame.display.update()
     def sleep(self, bg_color = 'Ivory'):
+        """Oculta la pantalla de la surface, déjando el surface listo para
+        mostar otra isntancia de pantalla.
+
+        bg_color: Color con el cual limpiará la pantalla. Opcional.
+    """
         surface.fill(colores[bg_color])
         surface.set_alpha(255)
         pygame.display.update()
         self.state = False
     def popup_toggle(self):
+        """Aun no implementado.
+        Se planea que muestre un popup, dándole control de la pantalla y el teclado.
+        """
         self.popup_state = True
     def key(self, tecla):
+        """Obtiene el valor de pulsación de tecla de PyGame, y realiza la acción
+        correspondiente dependiendo de los botones que se encuentren en la pantalla.
+        Tira error en print si se pulsa una tecla no asiganada.
+        """
         if self.popup_state:
             self.popup.get_key(tecla)
         else:
             print "Move"
             self.handler.move(tecla)
     def update(self):
+        """Actualiza el contenido que se encuentra en pantalla. Por el momento,
+        sólo se encarga de cuadros con texto que contenga variables y botones.
+        """
         if self.state == True:
             for child in self.hijos:
                 child.redraw_text()
@@ -166,14 +145,17 @@ class Pantalla(object):
         self.dirty_rects.append(rect)
 
 class Cuadro(object):
-    """Clase padre de una pantalla. Lleva todos los atributos minimos
-    necesarios para la utilizacion de un elemento en la pantalla"""
-    global surface
-    Count = 0
-    names = []
+    """Lleva todos los atributos minimos necesarios para la utilizacion de un
+    elemento en la pantalla. Acepta texto con o sin varaibles, e imágenes.
+
+    nombre: identificador del cuadro. No debe repetirse.
+    pos: posición en píxeles (x, y, alto, ancho)
+    color: color de fondo del cuadro. Debe ser uno de los de guía, como por
+           ejemplo, 'Ivory' o 'Blue' [Implementar mejor]
+    rounded: Si se desea que el cuadro se muestre con las esquinas curveadas o
+             no. Opcional, por defecto su valor es 0.
+    """
     def __init__(self, nombre, color, pos = (0,0,0,0), rounded = 0):
-        Cuadro.Count = Cuadro.Count + 1
-        Cuadro.names.append(nombre)
         self.name = nombre
         self.pos = pos
         self.color = color
@@ -184,14 +166,22 @@ class Cuadro(object):
         self.variables = {}
         self.rects = {}
     def get_text(self, string, tamano, fuente, color, **kwargs):
-        """Obtiene tiene texto para mostrar. En la varibale pos,
-        0 es centrado, 1 es derecha, 2 es izquierda
+        """Obtiene tiene texto para mostrar.
+
+        string: Texto a mostrar e identificador del mismo. No debe repetirse.
+        tamano: Tamano del texto a mostrar. Por ejemplo, 12.
+        fuente: Fuente a usar, si no se encuentra, se usa una por defecto.
+        color: Color de texto. Debe estar en el diccionario.
+        **kwargs: [No implementado.]
         
         pos aun no se encuentra implementado                        """
         self.textos[string] = (string, tamano, fuente, kwargs)
     def text_parser(self, string):
-        #Ejemplo 
-        #"""""Las aventuras de %s, el %s con pelos" % chicho nino"""
+        """Toma un string el cual tenga texto, de esta forma:
+        'Las aventuras de %s, el %s con pelos" % chicho nino'
+        Y sustituye las variables para mostrarlas en pantalla.
+        [Su implementación debe ser mejorar. Quitar TRY]
+        """
         exp_re = re.compile("%[^ ]")
         split_re = re.compile("(?<=% )(.*)").search(string)
         var_re = re.compile("(\w+)")
@@ -206,6 +196,9 @@ class Cuadro(object):
             string = string.replace(i, str(val), 1)
         return re.findall ( """["'](.*?)['"]""", string, re.DOTALL)[0]
     def check_changes(self, string):
+        """Checa si existen cambios en las varaibles de los strings. De ser
+        así, manda llamar a la pantalla activa para que haga el update
+        """ 
         if string in self.variables:
             for elem in self.variables[string]:
                 if glob.var_changed(elem):
@@ -214,9 +207,17 @@ class Cuadro(object):
                     return True
         return False
     def text_render(self, target = None):
-        """AUN NO IMPLEMENTADO
-        Se va a encargar de darle los rectangulos adecuados a cada
-        cuadro"""
+        """Se encarga de darle el formato adecuado al texto y su alineación
+        Acepta cualquiera de las siguientes combinaciones:
+
+        posx, poxy: Valores de pixeles en x, y, relativos al cuadro.
+        posy, align: Valores de pixeles de y, y alineación en X
+        line, align: Coloca al texto en la linea N respecto a su tamaño, así
+                     su respectiva alineación en X.
+
+        align -1 == Izquierda; 0 == Centro; 1 == Derecha
+        [Target aun no implementado, pero funcional de todas maneras]
+        """
         for elem in self.textos.itervalues():
             t = get_font(elem[2], elem[1])
             text = self.text_parser(elem[0])
@@ -283,26 +284,74 @@ class Cuadro(object):
         for elem in textos.itervalues():
             surface.blit(*self.rects[elem[0]])
     def redraw_text(self):
+        """Redibuja todo el texto si encuentra algún cambio en las variables
+        monitoreadas."""
         for elem in self.textos.itervalues():
             if self.check_changes(elem[0]):
                 pygame.draw.rect(surface, self.color, 
                 self.rects[elem[0]][1])
                 self.draw_text(elem[0], True)
-    def get_image(self, imagepath, posx = 0, posy = 0):
-        img = load_image(imagepath)
-        self.imagenes.append((img[0], img[1], posx, posy))
+    def get_image(self, filename, posx = 0, posy = 0):
+        """Recibe una imagen para ser mostrada en la pantalla.
+
+        filename: Nombre del archivo, debe encontrarse en la carpeta data
+        posx, posy = Ubicación de la imagen, relativa en pixeles.
+        """
+        fullname = os.path.join('data', filename)
+        try:
+            image = pygame.image.load(fullname).convert_alpha()
+        except pygame.error, message:
+            print 'No se pudo cargar la imamen: ', fullname
+        rect = image.get_rect()
+
+        self.imagenes.append((image, rect, posx, posy))
+    def RoundRect(self,surface,rect,color,radius=0.4):
+        """
+        AAfilledRoundedRect(surface,rect,color,radius=0.4)
+
+        surface : destination
+        rect    : rectangle
+        color   : rgb or rgba
+        radius  : 0 <= radius <= 1
+        """
+
+        rect         = Rect(rect)
+        color        = Color(*color)
+        alpha        = color.a
+        color.a      = 0
+        pos          = rect.topleft
+        rect.topleft = 0,0
+        rectangle    = pygame.Surface(rect.size,SRCALPHA)
+        circle       = pygame.Surface([min(rect.size)*3]*2,SRCALPHA)
+        pygame.draw.ellipse(circle,(0,0,0),circle.get_rect(),0)
+        circle       = pygame.transform.smoothscale(circle,
+               [int(min(rect.size)*radius)]*2)
+        radius              = rectangle.blit(circle,(0,0))
+        radius.bottomright  = rect.bottomright
+        rectangle.blit(circle,radius)
+        radius.topright     = rect.topright
+        rectangle.blit(circle,radius)
+        radius.bottomleft   = rect.bottomleft
+        rectangle.blit(circle,radius)
+        rectangle.fill((0,0,0),rect.inflate(-radius.w,0))
+        rectangle.fill((0,0,0),rect.inflate(0,-radius.h))
+        rectangle.fill(color,special_flags=BLEND_RGBA_MAX)
+        rectangle.fill((255,255,255,alpha),special_flags=BLEND_RGBA_MIN)
+        return surface.blit(rectangle,pos)
     def draw_image(self):
+        """Dibuja todas las imagenes cargadas."""
         for elem in self.imagenes:
             img_pos = (self.pos[0] + elem[2], self.pos[1] + elem[3])
             surface.blit(elem[0], img_pos)
             pygame.display.flip()
     def draw(self):
+        """Dibuja todo el cuadro en la surface"""
         if not self.rounded:
             pygame.draw.rect(surface, self.color, self.pos)
             self.draw_text()
             self.draw_image()
         else:
-            RoundRect(surface, self.pos, self.color)
+            self.RoundRect(surface, self.pos, self.color)
             self.draw_text()
             self.draw_image()
 
@@ -323,7 +372,7 @@ class Boton(Cuadro):
         action = self.action_string.split()[0]
         if action == 'OpenXML':
             pantallas[Pantalla.pCurrent].sleep()
-            name = string.split()[1] + '.xml'
+            name = self.action_string.split()[1] + '.xml'
             if pantallas.has_key(name):
                 pantallas[name].awaken()
             else:
@@ -338,10 +387,6 @@ class Boton(Cuadro):
             pass
         elif action == 'Poweroff':
             print "Comienza secuencia de apagado iniciada por el usuario"
-    def do_action(self):
-        """Sucede cuando el boton se presiona. La forma en la cual se cuente
-        que se presione depende de input_handler, no del boton per se."""
-        action_parser(self.action)
     def set_s(self, state):
         """Este estado se refiere a si se encuentra seleccionado o no. El
         cambio de estado cambia su color."""
@@ -465,15 +510,6 @@ class input_handler(object):
         else:
             print "Tecla no reconocida:", mov
         pantallas[Pantalla.pCurrent].update()
-        
-class Menu(Cuadro):
-    """Crea un menu de opciones el cual se puede mover y seleccionar acciones.
-    Debe estar en pantalla completa idealmente para ser utilizado.
-    El text agregado sirve para el título del menú."""
-    def add_option(self, option, action=None):
-        """Agrega una opcion que se mostrara en el menu
-        """
-        pass
 
 class Popup(Cuadro):
     """Elemento el cual se coloca al frente de la pantalla, indicando algun
@@ -597,7 +633,7 @@ class Screen(object):
         running = True
         screen_state = True
         while running:
-            clock.tick(30)
+            clock.tick(20)
             if Pantalla.pCurrent != None:
                 pantallas[Pantalla.pCurrent].update()
             for event in pygame.event.get():
