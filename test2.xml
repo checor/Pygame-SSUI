@@ -12,7 +12,7 @@
             <Fuente>Arial</Fuente>
             <Alineacion>1</Alineacion>
             <Tamano>38</Tamano>
-            <Text>Gas chido</Text>
+            <Text>Gas chafa</Text>
             <Color>White</Color>
             <Linea>0</Linea>
         </Texto>
@@ -22,22 +22,6 @@
             <PosY>8</PosY>
         </Imagen>
    </Caja>
-   <Caja Nombre="Caja 2">
-        <Alto>40</Alto>
-        <Ancho>190</Ancho>
-        <PosX>30</PosX>
-        <PosY>150</PosY>
-        <Color>Orange</Color>
-        <Redondez>.2</Redondez>
-        <Texto>
-            <Fuente>None</Fuente>
-            <Alineacion>0</Alineacion>
-            <Tamano>32</Tamano>
-            <Text>Promo: 1x2</Text>
-            <Color>White</Color>
-            <Linea>0</Linea>
-        </Texto>
-    </Caja>
     <Caja Nombre="Caja 3">
         <Alto>100</Alto>
         <Ancho>320</Ancho>
