@@ -24,7 +24,6 @@ def var_sum(name, val):
 def var_changed(name):
     if name in dicc:
         if dicc_changes[name] == True:
-            print name, "changed"
             dicc_changes[name] = False
             return True
         else:

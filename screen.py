@@ -43,30 +43,6 @@ def get_font(font, size):
         return f
 """Fin de variables"""
 
-def action_parser(string):
-    """Herramienta que nos permite realizar acciones provenientes de un
-    botón un menú, o cualquiero otro sistema. Obtiene un string,
-    realiza la acción y devuelve el resultado de dicha acción"""
-    action = string.split()[0]
-    if action == 'OpenXML':
-        pantallas[Pantalla.pCurrent].sleep()
-        name = string.split()[1] + '.xml'
-        if pantallas.has_key(name):
-            pantallas[name].awaken()
-        else:
-            try:
-                loadtemplate(name)
-            except Exception,e:
-                print "Fatal: Imposible cargar pantalla", name
-                print str(e)
-                return
-            pantallas[name].awaken()
-    elif action == 'OpenPopup':
-        pass
-    elif action == 'Poweroff':
-        print "Comienza secuencia de apagado iniciada por el usuario"
-    #Mcuhas mas secuencias deben ir aquí, pero no han sido cargadas
-
 #Definiciones realtivas a la pantalla
 
 def RoundRect(surface,rect,color,radius=0.4):
@@ -136,6 +112,7 @@ class Pantalla(object):
         self.popup_state = False  #?
         self.popup = None  #?
         self.dirty_rects = []
+        self.state = False
         if Pantalla.pCurrent == None:
             Pantalla.pCurrent = self.nombre
     def adopt(self, hijo):
@@ -152,6 +129,7 @@ class Pantalla(object):
             print "Advertencia: hijo no reconocido:", hijo
     def awaken(self, bg_color = 'Ivory'):
         Pantalla.pCurrent = self.nombre
+        self.state = True
         for child in self.hijos:
             child.draw()
         for boton in self.botones:
@@ -161,17 +139,21 @@ class Pantalla(object):
         surface.fill(colores[bg_color])
         surface.set_alpha(255)
         pygame.display.update()
+        self.state = False
     def popup_toggle(self):
         self.popup_state = True
     def key(self, tecla):
         if self.popup_state:
             self.popup.get_key(tecla)
         else:
+            print "Move"
             self.handler.move(tecla)
     def update(self):
-        for child in self.hijos:
-            child.redraw()
+        if self.state == True:
+            for child in self.hijos:
+                child.redraw_text()
         if len(self.dirty_rects) > 0:
+            print self.dirty_rects
             pygame.display.update(self.dirty_rects)
         self.dirty_rects = []
     def rect_add(self, rect):
@@ -300,7 +282,7 @@ class Cuadro(object):
             textos = self.textos
         for elem in textos.itervalues():
             surface.blit(*self.rects[elem[0]])
-    def redraw(self):
+    def redraw_text(self):
         for elem in self.textos.itervalues():
             if self.check_changes(elem[0]):
                 pygame.draw.rect(surface, self.color, 
@@ -333,7 +315,29 @@ class Boton(Cuadro):
         self.ac_color = self.color
         self.in_color = in_color
         self.nav_xy = nav_xy
-        self.action = action
+        self.action_string = action
+    def do_action(self):
+        """Herramienta que nos permite realizar acciones provenientes de un
+        botón un menú, o cualquiero otro sistema. Obtiene un string,
+        realiza la acción y devuelve el resultado de dicha acción"""
+        action = self.action_string.split()[0]
+        if action == 'OpenXML':
+            pantallas[Pantalla.pCurrent].sleep()
+            name = string.split()[1] + '.xml'
+            if pantallas.has_key(name):
+                pantallas[name].awaken()
+            else:
+                try:
+                    loadtemplate(name)
+                except Exception,e:
+                    print "Fatal: Imposible cargar pantalla", name
+                    print str(e)
+                    return
+            pantallas[name].awaken()
+        elif action == 'OpenPopup':
+            pass
+        elif action == 'Poweroff':
+            print "Comienza secuencia de apagado iniciada por el usuario"
     def do_action(self):
         """Sucede cuando el boton se presiona. La forma en la cual se cuente
         que se presione depende de input_handler, no del boton per se."""
@@ -347,6 +351,9 @@ class Boton(Cuadro):
         else:
             self.color = self.in_color
             self.state = True
+        if pantallas[Pantalla.pCurrent].state == True:
+            self.draw()
+            pantallas[Pantalla.pCurrent].rect_add(self.pos)
         
 class Matrix(object):
     """Matriz para el uso de botones y de menues, qque asigna posiciones
@@ -598,6 +605,7 @@ class Screen(object):
                     pygame.quit()
                     sys.exit()
                 if event.type == KEYDOWN:
+                    print 'Tecla'
                     if event.key == K_ESCAPE:
                         print "\nBye Bye"
                         pygame.quit()
