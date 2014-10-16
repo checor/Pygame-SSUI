@@ -21,8 +21,8 @@ def main():
     #Test
     glob.set_variable('venta', 0)
     while True:
-        time.sleep(.001)
-        glob.var_sum('venta', .01)
+        time.sleep(.1)
+        glob.var_sum('venta', .1)
         if glob.get_variable('venta') >= 30:
             break
     return 0

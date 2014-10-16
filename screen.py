@@ -16,7 +16,7 @@ import glob
 
 #Variables para Pygame
 #modificar dependiendo de la pantalla a utilizar
-size = width, height = 320, 240  #Elegimos el tamaño de la pantalla
+size = width, height = 320, 240  #Elegimos el tamano de la pantalla
 surface = pygame.display.set_mode((size),0,24)  #Pantalla completa a futuro
 pygame.display.set_caption("Newtech Software")  #Nombre de la ventana
 
@@ -59,19 +59,23 @@ class Pantalla(object):
     def __init__(self, nombre, color):
         self.nombre = nombre
         self.color = color
+        #Elementos que se manejan
         self.hijos = []  #Chance toque cambiar esto a futuro
         self.botones = {}
+        self.screensavers = {}
+        #Variables de comportamiento
         self.handler = input_handler(self.nombre)
         Pantalla.pCount = Pantalla.pCount + 1
         self.popup_state = False  #?
         self.popup = None  #?
         self.dirty_rects = []
         self.state = False
+        self.secs_elapsed = 0
         if Pantalla.pCurrent == None:
             Pantalla.pCurrent = self.nombre
     def adopt(self, hijo):
         """'Adopta' un objeto el cual se va a mostrar en la pantalla, como un
-        cuadro o un boton. Estos serán mostrados en pantalla al utlizar awaken
+        cuadro o un boton. Estos seran mostrados en pantalla al utlizar awaken
 
         hijo: El objeto el cual se va a integrar a a la pantalla.
         """
@@ -100,10 +104,10 @@ class Pantalla(object):
             self.botones[boton].draw()
         pygame.display.update()
     def sleep(self, bg_color = 'Ivory'):
-        """Oculta la pantalla de la surface, déjando el surface listo para
+        """Oculta la pantalla de la surface, dejando el surface listo para
         mostar otra isntancia de pantalla.
 
-        bg_color: Color con el cual limpiará la pantalla. Opcional.
+        bg_color: Color con el cual limpiara la pantalla. Opcional.
     """
         surface.fill(colores[bg_color])
         surface.set_alpha(255)
@@ -111,11 +115,11 @@ class Pantalla(object):
         self.state = False
     def popup_toggle(self):
         """Aun no implementado.
-        Se planea que muestre un popup, dándole control de la pantalla y el teclado.
+        Se planea que muestre un popup, dandole control de la pantalla y el teclado.
         """
         self.popup_state = True
     def key(self, tecla):
-        """Obtiene el valor de pulsación de tecla de PyGame, y realiza la acción
+        """Obtiene el valor de pulsación de tecla de PyGame, y realiza la accion
         correspondiente dependiendo de los botones que se encuentren en la pantalla.
         Tira error en print si se pulsa una tecla no asiganada.
         """
@@ -132,7 +136,6 @@ class Pantalla(object):
             for child in self.hijos:
                 child.redraw_text()
         if len(self.dirty_rects) > 0:
-            print self.dirty_rects
             pygame.display.update(self.dirty_rects)
         self.dirty_rects = []
     def rect_add(self, rect):
@@ -143,6 +146,18 @@ class Pantalla(object):
             -rect: area donde se encuentra la variable
         """
         self.dirty_rects.append(rect)
+    def sec(self):
+        """Se llama cada segundo, para saber si se necesita cambiar un
+        screensaver"""
+        self.secs_elapsed += 1
+        print self.secs_elapsed
+        if self.screensavers == {}:
+            return
+        else:
+            for e in self.screensavers.itervalues:
+                if self.secs_elapsed % e.get_sec() == 0:
+                    e.next_pic()
+    
 
 class Cuadro(object):
     """Lleva todos los atributos minimos necesarios para la utilizacion de un
@@ -303,7 +318,6 @@ class Cuadro(object):
         except pygame.error, message:
             print 'No se pudo cargar la imamen: ', fullname
         rect = image.get_rect()
-
         self.imagenes.append((image, rect, posx, posy))
     def RoundRect(self,surface,rect,color,radius=0.4):
         """
@@ -338,11 +352,16 @@ class Cuadro(object):
         rectangle.fill(color,special_flags=BLEND_RGBA_MAX)
         rectangle.fill((255,255,255,alpha),special_flags=BLEND_RGBA_MIN)
         return surface.blit(rectangle,pos)
-    def draw_image(self):
+    def draw_image(self, target = None):
         """Dibuja todas las imagenes cargadas."""
-        for elem in self.imagenes:
+        if target == None:
+            imagenes = self.imagenes
+        else:
+            imagenes = self.imagenes[target],
+        for elem in imagenes:
             img_pos = (self.pos[0] + elem[2], self.pos[1] + elem[3])
             surface.blit(elem[0], img_pos)
+            #Cambiar esto por un verdadero update
             pygame.display.flip()
     def draw(self):
         """Dibuja todo el cuadro en la surface"""
@@ -539,6 +558,31 @@ class Popup(Cuadro):
         else:
             self.input_handler.move(tecla)
 
+class Screensaver(Cuadro):
+    """Hace una dispositivas de imagenes las cuales haran update cuando
+    se le sea indicado"""
+    def __init__(self, *args):
+        self.secs = 5
+        self.cursor = 0
+        self.img_num = 0
+        super(Screensaver, self).__init__(*args)
+    def get_image(*args):
+        super(Screensaver, self).get_image(*args)
+        self.img_num += 1
+    def set_time(self, t = 5):
+        """Agrega el tiempo en segundos en el cual cambiara cada
+        imagen o diasposotiva"""
+    def get_sec(self):
+        return  sefl.secs
+    def next_pic(self):
+        if self.cursor == self.img_num:
+            self.cursor = 0
+        else:
+            self.cursor += 1
+        self.draw_image(self.cursor)
+    def redraw_image(self):
+		pass
+
 def get_color(color):
     global colores
     color = colores[color]
@@ -624,9 +668,9 @@ class Screen(object):
         pygame.init()
         pygame.font.init()
         noFont = pygame.font.SysFont(None, 8)
-
         clock = pygame.time.Clock()
-        
+        sec, sec_t = pygame.USEREVENT + 1, 1000  #Contador de segundos
+        pygame.time.set_timer(sec, sec_t)
         surface.fill(colores['Ivory'])
         loadtemplate(filename)
         pygame.display.update()
@@ -660,4 +704,7 @@ class Screen(object):
                         action_parser("OpenXML test")
                     else:
                         pantallas[Pantalla.pCurrent].key(event.key)
+                if event.type == sec:
+                    pantallas[Pantalla.pCurrent].sec()
+                    
         return 0
