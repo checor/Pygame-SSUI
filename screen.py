@@ -29,16 +29,7 @@ colores = {"Blue": (0, 170, 204) , "Orange": (255,78,0) , "Brick":
                (234,234,231) , "White" : (255,255,255) }
 
 #Fuentes
-def get_font(font, size):
-    if font == 'None':
-        return pygame.font.SysFont(None, size)
-    else:
-        try:
-            f = pygame.font.SysFont(font, size)
-        except:
-            print "Advertencia: Fuente ", font, " no encontrada"
-            return pygame.font.SysFont(None, size)
-        return f
+
 #Definiciones realtivas a la pantalla
 
 #Objetos globales
@@ -180,6 +171,17 @@ class Cuadro(object):
         self.imagenes = []
         self.variables = {}
         self.rects = {}
+    @staticmethod
+    def load_font(font, size):
+        if font == 'None':
+            return pygame.font.SysFont(None, size)
+        else:
+            try:
+                f = pygame.font.SysFont(font, size)
+            except:
+                print "Advertencia: Fuente ", font, " no encontrada"
+                return pygame.font.SysFont(None, size)
+            return f
     def get_text(self, string, tamano, fuente, color, **kwargs):
         """Obtiene tiene texto para mostrar.
 
@@ -234,7 +236,7 @@ class Cuadro(object):
         [Target aun no implementado, pero funcional de todas maneras]
         """
         for elem in self.textos.itervalues():
-            t = get_font(elem[2], elem[1])
+            t = Cuadro.load_font(elem[2], elem[1])
             text = self.text_parser(elem[0])
             text_render = t.render(text, 1, (0,0,0))
             text_rect = text_render.get_rect()
@@ -306,13 +308,13 @@ class Cuadro(object):
                 pygame.draw.rect(surface, self.color, 
                 self.rects[elem[0]][1])
                 self.draw_text(elem[0], True)
-    def get_image(self, filename, posx = 0, posy = 0):
+    def get_image(self, filename, posx = 0, posy = 0, folder = 'data'):
         """Recibe una imagen para ser mostrada en la pantalla.
 
         filename: Nombre del archivo, debe encontrarse en la carpeta data
         posx, posy = Ubicación de la imagen, relativa en pixeles.
         """
-        fullname = os.path.join('data', filename)
+        fullname = os.path.join(folder, filename)
         try:
             image = pygame.image.load(fullname).convert_alpha()
         except pygame.error, message:
@@ -359,10 +361,12 @@ class Cuadro(object):
         else:
             imagenes = self.imagenes[target],
         for elem in imagenes:
-            img_pos = (self.pos[0] + elem[2], self.pos[1] + elem[3])
+            img_pos = Rect(self.pos[0], self.pos[1], self.pos[0] + elem[2],
+                           self.pos[1] + elem[3])
             surface.blit(elem[0], img_pos)
+            pantallas[Pantalla.pCurrent].rect_add(img_pos)
             #Cambiar esto por un verdadero update
-            pygame.display.flip()
+            #pygame.display.flip()
     def draw(self):
         """Dibuja todo el cuadro en la surface"""
         if not self.rounded:
@@ -396,7 +400,7 @@ class Boton(Cuadro):
                 pantallas[name].awaken()
             else:
                 try:
-                    loadtemplate(name)
+                    Screen.load_xml(name)
                 except Exception,e:
                     print "Fatal: Imposible cargar pantalla", name
                     print str(e)
@@ -572,6 +576,7 @@ class Screensaver(Cuadro):
     def set_time(self, t = 5):
         """Agrega el tiempo en segundos en el cual cambiara cada
         imagen o diasposotiva"""
+        self.secs = t
     def get_sec(self):
         return  sefl.secs
     def next_pic(self):
@@ -580,80 +585,15 @@ class Screensaver(Cuadro):
         else:
             self.cursor += 1
         self.draw_image(self.cursor)
-    def redraw_image(self):
-		pass
-
-def get_color(color):
-    global colores
-    color = colores[color]
-    return color
-
-def loadtemplate(filename): 
-    tree = ET.parse(filename)
-    root = tree.getroot()
-    if root.tag == "Pantalla":
-            p = Pantalla(filename, colores['White'])  # WAT
-            pantallas[filename] = p
-            for child in root.findall("Caja"):
-                x = child.find('PosX')
-                y = child.find('PosY')
-                al = child.find('Alto')
-                an = child.find('Ancho')
-                posc = (int(x.text), int(y.text), int(an.text), int(al.text))
-                color = child.find('Color').text
-                color = get_color(color)
-                rounded = float(child.find('Redondez').text)
-                c = Cuadro(str(child.attrib['Nombre']), color,  posc, rounded)
-                for t in child.findall("Texto"):
-                    ttext = t.find("Text").text
-                    tsize = int(t.find("Tamano").text)
-                    tfont = t.find("Fuente").text
-                    tcolor = t.find("Color").text
-                    tline = int(t.find("Linea").text)
-                    talign = int(t.find("Alineacion").text)
-                    c.get_text(ttext, tsize, tfont, tcolor, line=
-                    tline, align=talign)
-                for imag in child.findall("Imagen"):
-                    imagen = imag.find("Filename").text
-                    img_posx = int(imag.find("PosX").text)
-                    img_posy = int(imag.find("PosY").text)
-                    c.get_image(imagen, img_posx, img_posy)
-                pantallas[filename].adopt(c)
-            for child in root.findall("Boton"):
-                x = child.find('PosX')
-                y = child.find('PosY')
-                al = child.find('Alto')
-                an = child.find('Ancho')
-                posc = (int(x.text), int(y.text), int(an.text), int(al.text))
-                color = child.find('Color_activo').text
-                color = get_color(color)
-                rounded = float(child.find('Redondez').text)
-                b = Boton(str(child.attrib['Nombre']), color,  posc, rounded)
-                pantallas[filename].adopt(c)
-                for t in child.findall("Texto"):
-                    ttext = t.find("Text").text
-                    tsize = int(t.find("Tamano").text)
-                    tfont = t.find("Fuente").text
-                    tcolor = t.find("Color").text
-                    tline = int(t.find("Linea").text)
-                    talign = int(t.find("Alineacion").text)
-                    b.get_text(ttext, tsize, tfont, tcolor, line=
-                    tline, align=talign)
-                for imag in child.findall("Imagen"):
-                    imagen = imag.find("Filename").text
-                    img_posx = int(imag.find("PosX").text)
-                    img_posy = int(imag.find("PosY").text)
-                    b.get_image(imagen, img_posx, img_posy)
-                color_in = child.find("Color_inactivo").text
-                #Acciones especiales para el boton
-                color_in = colores[color_in]
-                action = child.find("Accion").text
-                valx = int(child.find("ValX").text)
-                valy = int(child.find("ValY").text)
-                b.set_values(color_in, (valx, valy), action )
-                pantallas[filename].adopt(b)
-    else:
-        print "XML inválido."
+    def load_folder(self, name):
+        """
+        Añade un folder completo de imágenes para ser mostradas
+        Estas serán mostradas en 0,0
+        """
+        filelist = os.listdir(name, x=0, y=0):
+            for e in filelist:
+                if e.endswith('.png') or e.endswith('.jpg'):
+                    self.get_image(e, x, y, name)
 
 if __name__ == '__main__':
     print "Error: Esto modulo no es independiente. Corra Main."
@@ -663,6 +603,73 @@ class Screen(object):
     mediante el uso de pygame. No confundir con clase Pantalla."""
     def __init__(self):
         self.running = False
+    @staticmethod
+    def load_xml(filename): 
+        tree = ET.parse(filename)
+        root = tree.getroot()
+        if root.tag == "Pantalla":
+                p = Pantalla(filename, colores['White'])  # WAT
+                pantallas[filename] = p
+                for child in root.findall("Caja"):
+                    x = child.find('PosX')
+                    y = child.find('PosY')
+                    al = child.find('Alto')
+                    an = child.find('Ancho')
+                    posc = (int(x.text), int(y.text), int(an.text), int(al.text))
+                    color = child.find('Color').text
+                    color = colores[color]
+                    rounded = float(child.find('Redondez').text)
+                    c = Cuadro(str(child.attrib['Nombre']), color,  posc, rounded)
+                    for t in child.findall("Texto"):
+                        ttext = t.find("Text").text
+                        tsize = int(t.find("Tamano").text)
+                        tfont = t.find("Fuente").text
+                        tcolor = t.find("Color").text
+                        tline = int(t.find("Linea").text)
+                        talign = int(t.find("Alineacion").text)
+                        c.get_text(ttext, tsize, tfont, tcolor, line=
+                        tline, align=talign)
+                    for imag in child.findall("Imagen"):
+                        imagen = imag.find("Filename").text
+                        img_posx = int(imag.find("PosX").text)
+                        img_posy = int(imag.find("PosY").text)
+                        c.get_image(imagen, img_posx, img_posy)
+                    pantallas[filename].adopt(c)
+                for child in root.findall("Boton"):
+                    x = child.find('PosX')
+                    y = child.find('PosY')
+                    al = child.find('Alto')
+                    an = child.find('Ancho')
+                    posc = (int(x.text), int(y.text), int(an.text), int(al.text))
+                    color = child.find('Color_activo').text
+                    color = colores[color]
+                    rounded = float(child.find('Redondez').text)
+                    b = Boton(str(child.attrib['Nombre']), color,  posc, rounded)
+                    pantallas[filename].adopt(c)
+                    for t in child.findall("Texto"):
+                        ttext = t.find("Text").text
+                        tsize = int(t.find("Tamano").text)
+                        tfont = t.find("Fuente").text
+                        tcolor = t.find("Color").text
+                        tline = int(t.find("Linea").text)
+                        talign = int(t.find("Alineacion").text)
+                        b.get_text(ttext, tsize, tfont, tcolor, line=
+                        tline, align=talign)
+                    for imag in child.findall("Imagen"):
+                        imagen = imag.find("Filename").text
+                        img_posx = int(imag.find("PosX").text)
+                        img_posy = int(imag.find("PosY").text)
+                        b.get_image(imagen, img_posx, img_posy)
+                    color_in = child.find("Color_inactivo").text
+                    #Acciones especiales para el boton
+                    color_in = colores[color_in]
+                    action = child.find("Accion").text
+                    valx = int(child.find("ValX").text)
+                    valy = int(child.find("ValY").text)
+                    b.set_values(color_in, (valx, valy), action )
+                    pantallas[filename].adopt(b)
+        else:
+            print "XML inválido."
     def run(self, filename):
         global q
         pygame.init()
@@ -672,7 +679,7 @@ class Screen(object):
         sec, sec_t = pygame.USEREVENT + 1, 1000  #Contador de segundos
         pygame.time.set_timer(sec, sec_t)
         surface.fill(colores['Ivory'])
-        loadtemplate(filename)
+        Screen.load_xml(filename)
         pygame.display.update()
         running = True
         screen_state = True
