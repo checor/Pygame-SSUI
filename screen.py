@@ -11,6 +11,7 @@ import pygame, sys, re
 from pygame.locals import *
 import xml.etree.ElementTree as ET
 import os
+import yaml
 
 import glob
 
@@ -28,12 +29,9 @@ colores = {"Blue": (0, 170, 204) , "Orange": (255,78,0) , "Brick":
                (44,57,59) , "Light grey" : (244,244,244) , "Ivory" :
                (234,234,231) , "White" : (255,255,255) }
 
-#Fuentes
-
-#Definiciones realtivas a la pantalla
-
-#Objetos globales
+#Variables globales
 pantallas = {}
+
 
 class Pantalla(object):
     """Crea un objeto para la pantalla. Lleva como hijos los cuadros que
@@ -49,7 +47,7 @@ class Pantalla(object):
     pCurrent = None
     def __init__(self, nombre, color):
         self.nombre = nombre
-        self.color = color
+        self.color = colores[color]
         #Elementos que se manejan
         self.hijos = []  #Chance toque cambiar esto a futuro
         self.botones = {}
@@ -164,7 +162,7 @@ class Cuadro(object):
     def __init__(self, nombre, color, pos = (0,0,0,0), rounded = 0):
         self.name = nombre
         self.pos = pos
-        self.color = color
+        self.color = colores[color]
         self.rendered = False
         self.rounded = rounded
         self.textos = {}
@@ -330,7 +328,7 @@ class Cuadro(object):
         color   : rgb or rgba
         radius  : 0 <= radius <= 1
         """
-
+        
         rect         = Rect(rect)
         color        = Color(*color)
         alpha        = color.a
@@ -385,7 +383,7 @@ class Boton(Cuadro):
     y desactivar al engendro que tenemos por boton."""
     def set_values(self, in_color, nav_xy, action):
         self.ac_color = self.color
-        self.in_color = in_color
+        self.in_color = colores[in_color]
         self.nav_xy = nav_xy
         self.action_string = action
     def do_action(self):
@@ -395,12 +393,12 @@ class Boton(Cuadro):
         action = self.action_string.split()[0]
         if action == 'OpenXML':
             pantallas[Pantalla.pCurrent].sleep()
-            name = self.action_string.split()[1] + '.xml'
+            name = self.action_string.split()[1] + '.yaml'
             if pantallas.has_key(name):
                 pantallas[name].awaken()
             else:
                 try:
-                    Screen.load_xml(name)
+                    Screen.load_yaml(name)
                 except Exception,e:
                     print "Fatal: Imposible cargar pantalla", name
                     print str(e)
@@ -590,10 +588,10 @@ class Screensaver(Cuadro):
         Añade un folder completo de imágenes para ser mostradas
         Estas serán mostradas en 0,0
         """
-        filelist = os.listdir(name, x=0, y=0):
-            for e in filelist:
-                if e.endswith('.png') or e.endswith('.jpg'):
-                    self.get_image(e, x, y, name)
+        filelist = os.listdir(name, x=0, y=0)
+        for e in filelist:
+            if e.endswith('.png') or e.endswith('.jpg'):
+                self.get_image(e, x, y, name)
 
 if __name__ == '__main__':
     print "Error: Esto modulo no es independiente. Corra Main."
@@ -608,7 +606,7 @@ class Screen(object):
         tree = ET.parse(filename)
         root = tree.getroot()
         if root.tag == "Pantalla":
-                p = Pantalla(filename, colores['White'])  # WAT
+                p = Pantalla(filename, 'White')  # WAT
                 pantallas[filename] = p
                 for child in root.findall("Caja"):
                     x = child.find('PosX')
@@ -670,6 +668,76 @@ class Screen(object):
                     pantallas[filename].adopt(b)
         else:
             print "XML inválido."
+    @staticmethod
+    def load_yaml(filename):
+        f = open(filename, 'r')
+        tree = yaml.load(f)
+        if 'Pantalla' in tree:
+            p = Pantalla(filename, 'White')
+            pantallas[filename] = p
+            if 'Caja' in tree['Pantalla']:
+                for e in tree['Pantalla']['Caja']:
+                    nombre = e['_Nombre']
+                    alto = e['Alto']
+                    ancho = e['Ancho']
+                    color = e['Color']
+                    posx = e['PosX']
+                    posy = e ['PosY']
+                    redo = e['Redondez']
+                    pos = (posx, posy, ancho, alto)
+                    c = Cuadro(nombre, color, pos, redo)
+                    if 'Texto' in e:
+                        for t in e['Texto'],:
+                            t_string = t['Text']
+                            t_size = t['Tamano']
+                            t_font = t['Fuente']
+                            t_color = t['Color']
+                            t_line = t['Linea']
+                            t_align = t['Alineacion']
+                            c.get_text(t_string, t_size, t_font, t_color,
+                                       line = t_line, align = t_align)
+                    if 'Imagen' in e:
+                        for i in e['Imagen'],:
+                            i_file = i['Filename']
+                            i_posx = i['PosX']
+                            i_posy = i['PosY']
+                            c.get_image(i_file, i_posx, i_posy)
+                    pantallas[filename].adopt(c)
+            if 'Boton' in tree['Pantalla']:
+                for e in tree['Pantalla']['Boton']:
+                    nombre = e['_Nombre']
+                    alto = e['Alto']
+                    ancho = e['Ancho']
+                    color = e['Color_activo']
+                    posx = e['PosX']
+                    posy = e ['PosY']
+                    redo = e['Redondez']
+                    pos = (posx, posy, ancho, alto)
+                    b = Boton(nombre, color, pos, redo)
+                    if 'Texto' in e:
+                        for t in e['Texto'],:
+                            t_string = t['Text']
+                            t_size = t['Tamano']
+                            t_font = t['Fuente']
+                            t_color = t['Color']
+                            t_line = t['Linea']
+                            t_align = t['Alineacion']
+                            b.get_text(t_string, t_size, t_font, t_color,
+                                       line = t_line, align = t_align)
+                    if 'Imagen' in e:
+                        for i in e['Imagen'],:
+                            i_file = i['Filename']
+                            i_posx = i['PosX']
+                            i_posy = i['PosY']
+                            b.get_image(i_file, i_posx, i_posy)
+                    c_inac = e['Color_inactivo']
+                    action = e['Accion']
+                    valx = e['ValX']
+                    valy = e['ValY']
+                    b.set_values(c_inac, (valx, valy), action)
+                    pantallas[filename].adopt(b)
+        else:
+            print "YAML invalido!"
     def run(self, filename):
         global q
         pygame.init()
@@ -679,7 +747,7 @@ class Screen(object):
         sec, sec_t = pygame.USEREVENT + 1, 1000  #Contador de segundos
         pygame.time.set_timer(sec, sec_t)
         surface.fill(colores['Ivory'])
-        Screen.load_xml(filename)
+        Screen.load_yaml(filename)
         pygame.display.update()
         running = True
         screen_state = True
