@@ -1,0 +1,92 @@
+Pantalla: 
+ Caja: 
+  - 
+   Alto: 50
+   Color: Blue
+   Ancho: 240
+   PosX: 30
+   PosY: 0
+   Redondez: ".4"
+   Texto: 
+    Fuente: Arial
+    Alineacion: 1
+    Tamano: 38
+    Text: "Tech demo"
+    Color: White
+    Linea: 0
+   Imagen: 
+    Filename: "gas.png"
+    PosX: 10
+    PosY: 8
+   _Nombre: "Caja 1"
+  - 
+   Alto: 40
+   Ancho: 190
+   PosX: 30
+   PosY: 150
+   Color: Orange
+   Redondez: ".2"
+   Texto: 
+    Fuente: None
+    Alineacion: 0
+    Tamano: 32
+    Text: "Box Example"
+    Color: White
+    Linea: 0
+   _Nombre: "Caja 2"
+  - 
+   Alto: 100
+   Ancho: 320
+   PosX: 0
+   PosY: 50
+   Color: "Light grey"
+   Redondez: ".4"
+   Texto: 
+    Fuente: "digital-7-mono"
+    Alineacion: -1
+    Linea: 0
+    Tamano: 60
+    Text: "\"Var demo %f\" % venta"
+    Color: White
+   _Nombre: "Caja 3"
+ Boton: 
+  - 
+   Alto: 30
+   Ancho: 100
+   PosX: 0
+   PosY: 200
+   ValX: 0
+   ValY: 0
+   Color_activo: Blue
+   Color_inactivo: "Light grey"
+   Accion: "OpenXML test"
+   Redondez: ".4"
+   Texto: 
+    Fuente: Ubuntu
+    Alineacion: -1
+    Linea: 0
+    Tamano: 12
+    Text: "Pantalla 1"
+    Color: White
+   _Nombre: "Boton 1"
+  - 
+   Alto: 30
+   Ancho: 100
+   PosX: 100
+   PosY: 200
+   ValX: 0
+   ValY: 1
+   Color_activo: Blue
+   Color_inactivo: "Light grey"
+   Accion: "OpenXML test2"
+   Redondez: ".4"
+   Texto: 
+    Fuente: Ubuntu
+    Alineacion: -1
+    Linea: 0
+    Tamano: 12
+    Text: "Pantalla 2"
+    Color: White
+   _Nombre: "Boton 2"
+Pantalla 2:
+ Hola : "-9"
