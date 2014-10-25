@@ -1,6 +1,6 @@
 # Newtech's UI #
 
-Desarrollo de una versión preeliminar para el futuro sistema de ventas de gas de Newtech.
+Desarrollo de una versión preeliminar para el futuro sistema de ventas de gas de Newtech. Visita la Wiki para tener mas información acerca del estado del desarollo.
 
 ### Funciones ###
 
