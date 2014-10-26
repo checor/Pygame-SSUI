@@ -59,7 +59,7 @@ Pantalla:
    ValY: 0
    Color_activo: Blue
    Color_inactivo: "Light grey"
-   Accion: "OpenXML test"
+   Accion: "OpenYAML test"
    Redondez: ".4"
    Texto: 
     Fuente: Ubuntu
@@ -78,7 +78,7 @@ Pantalla:
    ValY: 1
    Color_activo: Blue
    Color_inactivo: "Light grey"
-   Accion: "OpenXML test2"
+   Accion: "OpenYAML test2"
    Redondez: ".4"
    Texto: 
     Fuente: Ubuntu
@@ -88,5 +88,22 @@ Pantalla:
     Text: "Pantalla 2"
     Color: White
    _Nombre: "Boton 2"
-Pantalla 2:
- Hola : "-9"
+  -
+   Alto: 30
+   Ancho: 100
+   PosX: 200
+   PosY: 200
+   ValX: 0
+   ValY: 2
+   Color_activo: Blue
+   Color_inactivo: "Light grey"
+   Accion: "OpenYAML saver"
+   Redondez: 0
+   Texto: 
+    Fuente: Ubuntu
+    Alineacion: -1
+    Linea: 0
+    Tamano: 12
+    Text: "Screensaver"
+    Color: White
+   _Nombre: "Boton 3"

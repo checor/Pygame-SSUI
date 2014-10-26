@@ -20,6 +20,7 @@ import glob
 size = width, height = 320, 240  #Elegimos el tamano de la pantalla
 surface = pygame.display.set_mode((size),0,24)  #Pantalla completa a futuro
 pygame.display.set_caption("Newtech Software")  #Nombre de la ventana
+fps = 30  #Frames a los cuales se va a trabajar
 
 #Colores de guia de Firefox OS
 #Checar los colores, ya que se repite uno[]
@@ -51,6 +52,7 @@ class Pantalla(object):
         #Elementos que se manejan
         self.hijos = []  #Chance toque cambiar esto a futuro
         self.botones = {}
+        self.has_ss = False  #No tiene screensaver
         self.screensavers = {}
         #Variables de comportamiento
         self.handler = input_handler(self.nombre)
@@ -77,6 +79,9 @@ class Pantalla(object):
                 hijo.set_s(False)
             self.botones[hijo.name] = hijo
             self.handler.add_button(hijo.name, *hijo.nav_xy)
+        elif type(hijo) is Screensaver:
+            self.has_ss = True
+            self.screensavers[hijo.name] = hijo
         else:
             print "Advertencia: hijo no reconocido:", hijo
     def awaken(self, bg_color = 'Ivory'):
@@ -91,13 +96,15 @@ class Pantalla(object):
             child.draw()
         for boton in self.botones:
             self.botones[boton].draw()
+        for s in self.screensavers.itervalues():
+            s.draw()
         pygame.display.update()
     def sleep(self, bg_color = 'Ivory'):
         """Oculta la pantalla de la surface, dejando el surface listo para
         mostar otra isntancia de pantalla.
 
         bg_color: Color con el cual limpiara la pantalla. Opcional.
-    """
+        """
         surface.fill(colores[bg_color])
         surface.set_alpha(255)
         pygame.display.update()
@@ -139,14 +146,15 @@ class Pantalla(object):
         """Se llama cada segundo, para saber si se necesita cambiar un
         screensaver"""
         self.secs_elapsed += 1
-        print self.secs_elapsed
         if self.screensavers == {}:
             return
         else:
             for e in self.screensavers.itervalues:
                 if self.secs_elapsed % e.get_sec() == 0:
                     e.next_pic()
-    
+    def has_screensaver(self):
+        """Dice si tiene screensavers"""
+        return self.has_ss
 
 class Cuadro(object):
     """Lleva todos los atributos minimos necesarios para la utilizacion de un
@@ -391,18 +399,18 @@ class Boton(Cuadro):
         botón un menú, o cualquiero otro sistema. Obtiene un string,
         realiza la acción y devuelve el resultado de dicha acción"""
         action = self.action_string.split()[0]
-        if action == 'OpenXML':
+        if action == 'OpenYAML':
             pantallas[Pantalla.pCurrent].sleep()
             name = self.action_string.split()[1] + '.yaml'
             if pantallas.has_key(name):
                 pantallas[name].awaken()
             else:
-                try:
-                    Screen.load_yaml(name)
-                except Exception,e:
-                    print "Fatal: Imposible cargar pantalla", name
-                    print str(e)
-                    return
+                #try:
+                Screen.load_yaml(name)
+                #except Exception,e:
+                #    print "Fatal: Imposible cargar pantalla", name
+                #    print str(e)
+                #    return
             pantallas[name].awaken()
         elif action == 'OpenPopup':
             pass
@@ -431,7 +439,7 @@ class Matrix(object):
     def add_value(self, name, x, y):
         while x+1 > len(self.m):
             self.m.append([])
-        for i in range(len(self.m)):
+        for i in xrange(len(self.m)):
             while len(self.m[i]) < y +1 :
                 self.m[i].append([])
         self.m[x][y] = name
@@ -441,7 +449,7 @@ class Matrix(object):
         else:
             return False
     def print_matrix(self):
-        for i in range(len(self.m)):
+        for i in xrange(len(self.m)):
             print self.m[i]
     def get_value(self):
         try:
@@ -481,7 +489,7 @@ class Matrix(object):
 
 class input_handler(object):
     """Por el momento, esta clase solamente se encarga de tratar con
-    los botones. Recibe lsa entradas directamente de Pygame, y hace
+    los botones. Recibe las entradas directamente de Pygame, y hace
     los cambios necesario en la pantalla para reflejarlos en pantalla"""
     def __init__(self, pantalla_name):
         self.master = pantalla_name
@@ -583,25 +591,22 @@ class Screensaver(Cuadro):
         else:
             self.cursor += 1
         self.draw_image(self.cursor)
-    def load_folder(self, name):
+    def load_folder(self, name, x=0, y=0):
         """
         Añade un folder completo de imágenes para ser mostradas
         Estas serán mostradas en 0,0
         """
-        filelist = os.listdir(name, x=0, y=0)
+        filelist = os.listdir(name)
         for e in filelist:
             if e.endswith('.png') or e.endswith('.jpg'):
                 self.get_image(e, x, y, name)
-
-if __name__ == '__main__':
-    print "Error: Esto modulo no es independiente. Corra Main."
 
 class Screen(object):
     """Maneja por completo todo lo que se muestra en la pantalla,
     mediante el uso de pygame. No confundir con clase Pantalla."""
     def __init__(self):
         self.running = False
-    @staticmethod
+    @staticmethod  #Outdated
     def load_xml(filename): 
         tree = ET.parse(filename)
         root = tree.getroot()
@@ -669,8 +674,8 @@ class Screen(object):
         else:
             print "XML inválido."
     @staticmethod
-    def load_yaml(filename):
-        f = open(filename, 'r')
+    def load_yaml(filename, folder = 'screens'):
+        f = open(os.path.join(folder, filename), 'r')
         tree = yaml.load(f)
         if 'Pantalla' in tree:
             p = Pantalla(filename, 'White')
@@ -736,6 +741,15 @@ class Screen(object):
                     valy = e['ValY']
                     b.set_values(c_inac, (valx, valy), action)
                     pantallas[filename].adopt(b)
+            if 'Screensaver' in tree['Pantalla']:
+                for s in tree['Pantalla']['Screensaver']:
+                    pos = (s['PosX'], s['PosY'], s['Ancho'], s['Alto'])
+                    scr = Screensaver(s['_Nombre'], s['Color'], pos, 
+                        s['Redondez'])
+                    if 'Folder' in s:
+                       scr.load_folder(s['Folder'])
+                    
+                    
         else:
             print "YAML invalido!"
     def run(self, filename):
@@ -752,7 +766,7 @@ class Screen(object):
         running = True
         screen_state = True
         while running:
-            clock.tick(20)
+            ms = clock.tick(fps)
             if Pantalla.pCurrent != None:
                 pantallas[Pantalla.pCurrent].update()
             for event in pygame.event.get():
@@ -783,3 +797,6 @@ class Screen(object):
                     pantallas[Pantalla.pCurrent].sec()
                     
         return 0
+
+if __name__ == '__main__':
+    print "Error: Esto modulo no es independiente. Corra Main."

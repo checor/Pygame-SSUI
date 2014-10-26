@@ -44,7 +44,7 @@ Pantalla:
    ValY: 0
    Color_activo: Blue
    Color_inactivo: "Light grey"
-   Accion: "OpenXML test"
+   Accion: "OpenYAML test"
    Redondez: ".4"
    Texto: 
     Fuente: Ubuntu
@@ -63,7 +63,7 @@ Pantalla:
    ValY: 1
    Color_activo: Blue
    Color_inactivo: "Light grey"
-   Accion: "OpenXML test2"
+   Accion: "OpenYAML test2"
    Redondez: ".4"
    Texto: 
     Fuente: Ubuntu
