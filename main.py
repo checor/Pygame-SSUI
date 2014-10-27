@@ -12,10 +12,11 @@ import screen
 import config
 import glob
 
+
 def main():
     
     scr = screen.Screen()
-    scr_t = threading.Thread(target=scr.run, args=('test.yaml',))
+    scr_t = threading.Thread(target=scr.start, args=('test.yaml',))
     scr_t.start()
     
     #Test

@@ -3,25 +3,25 @@ Pantalla:
  -
   Alto: 50
   Ancho: 240
-  PosX: 0
-  PosY: 0
+  PosX: 10
+  PosY: 10
   Redondez: 0
   Color: Blue
   Texto:
    Fuente: Arial
-   Alineacion: 0
-   Tamano: 38
+   Alineacion: -1
+   Tamano: 18
    Text: "Screensaver Demo"
    Color: Black
    Linea: 0
   _Nombre: Caja 1
  Screensaver:
  -
-  Alto: 200
-  Ancho: 200
-  PosX: 0
+  Alto: 10
+  Ancho: 10
+  PosX: 50
   PosY: 50
-  Color: Blue
+  Color: Green
   Folder: demo
   Redondez: 0
   _Nombre: SC
