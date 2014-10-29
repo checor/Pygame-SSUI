@@ -1,0 +1,17 @@
+Pantalla: 
+ Caja: 
+  - 
+   Alto: 50
+   Color: Blue
+   Ancho: 240
+   PosX: 30
+   PosY: 0
+   Redondez: ".4"
+   Texto: 
+    Fuente: Arial
+    Alineacion: 1
+    Tamano: 38
+    Text: "Tech demo"
+    Color: White
+    Linea: 0
+   _Nombre: "Caja 1"

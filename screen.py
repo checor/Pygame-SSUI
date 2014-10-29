@@ -7,7 +7,7 @@ Created on Thu Jul 10 19:24:52 2014
 Mejorar la documentacion
 """
 
-import pygame, sys, re
+import pygame, sys, re, threading
 from pygame.locals import *
 import xml.etree.ElementTree as ET
 import os
@@ -20,7 +20,7 @@ import glob
 size = width, height = 320, 240  # Elegimos el tamano de la pantalla
 surface = pygame.display.set_mode(size, 0, 24)  # Pantalla completa a futuro
 pygame.display.set_caption("Newtech Software")  # Nombre de la ventana
-fps = 30  # Frames a los cuales se va a trabajar
+fps = 60  # Frames a los cuales se va a trabajar
 
 #Colores de guia de Firefox OS
 #Checar los colores, ya que se repite uno[]
@@ -155,7 +155,6 @@ class Pantalla(object):
         """Se llama cada segundo, para saber si se necesita cambiar un
         screensaver"""
         if self.screensavers == {}:
-            print '<.<'
             return
         else:
             self.secs_elapsed += 1
@@ -747,12 +746,12 @@ class Screen(object):
         clock = pygame.time.Clock()
         sec, sec_t = pygame.USEREVENT + 1, 1000  # Contador de segundos
         pygame.time.set_timer(sec, sec_t)
-        surface.fill(colores['Ivory'])
         load_yaml(filename)
-        pygame.display.update()
+        surface.fill(colores['Ivory'])
         running = True
         while running:
             clock.tick(fps)
+            pygame.display.update()
             if Pantalla.pCurrent is not None:
                 pantallas[Pantalla.pCurrent].update()
             for event in pygame.event.get():
@@ -775,7 +774,6 @@ class Screen(object):
                         pantallas[Pantalla.pCurrent].key(event.key)
                 if event.type == sec:
                     pantallas[Pantalla.pCurrent].sec()
-
         return 0
 
 
@@ -854,9 +852,11 @@ def load_yaml(filename, folder='screens'):
                 if 'Folder' in s:
                     scr.load_folder(s['Folder'])
                 pantallas[filename].adopt(scr)
+        print "A huevo"
     else:
         print "YAML invalido!"
 
 
 if __name__ == '__main__':
-    print "Error: Esto modulo no es independiente. Corra Main."
+    one = Screen()
+    one.start("test.yaml")

@@ -6,7 +6,9 @@
 #  Copyright 2014 Sergio I. Urbina <checor@gmail.com>
 #  
   
-import threading, os, time
+from multiprocessing import Process, freeze_support
+import os
+import time
 
 import screen
 import config
@@ -14,9 +16,9 @@ import glob
 
 
 def main():
-    
+    freeze_support()
     scr = screen.Screen()
-    scr_t = threading.Thread(target=scr.start, args=('test.yaml',))
+    scr_t = Process(target=scr.start, args=('min.yaml',))
     scr_t.start()
     
     #Test
