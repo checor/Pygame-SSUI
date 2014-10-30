@@ -23,6 +23,7 @@ pygame.display.set_caption("Newtech Software")  # Nombre de la ventana
 fps = 60  # Frames a los cuales se va a trabajar
 
 #Colores de guia de Firefox OS
+#En un futuro checar los colores de Pygame
 #Checar los colores, ya que se repite uno[]
 colores = {"Blue": (0, 170, 204), "Orange": (255, 78, 0), "Brick":
            (205, 103, 35), "Red": (185, 0, 0), "Green": (95, 155, 10),
@@ -32,6 +33,7 @@ colores = {"Blue": (0, 170, 204), "Orange": (255, 78, 0), "Brick":
 
 #Variables globales
 pantallas = {}
+popups = {}
 
 
 class Pantalla(object):
@@ -44,27 +46,25 @@ class Pantalla(object):
     color: color de fondo de la pantalla. Al parecer no esta bien implementado.
 
     """
-    pCount = 0
-    pCurrent = None
+    Current = None
 
     def __init__(self, nombre, col):
         self.nombre = nombre
         self.color = colores[col]
         #Elementos que se manejan
-        self.hijos = []  # Chance toque cambiar esto a futuro
+        self.cuadros = []  # Chance toque cambiar esto a futuro
         self.botones = {}
         self.has_ss = False  # No tiene screensaver
         self.screensavers = {}
         self.popup_state = False
         self.popup = None
         #Variables de comportamiento
-        self.handler = input_handler(self.nombre)
-        Pantalla.pCount += 1
+        self.handler = InputHandler(self.nombre)
         self.dirty_rects = []
         self.state = False
         self.secs_elapsed = 0
-        if Pantalla.pCurrent is None:
-            Pantalla.pCurrent = self.nombre
+        if Pantalla.Current is None:
+            Pantalla.Current = self.nombre
 
     def adopt(self, hijo):
         """'Adopta' un objeto el cual se va a mostrar en la pantalla, como un
@@ -73,7 +73,7 @@ class Pantalla(object):
         hijo: El objeto el cual se va a integrar a a la pantalla.
         """
         if type(hijo) is Cuadro:
-            self.hijos.append(hijo)
+            self.cuadros.append(hijo)
         elif type(hijo) is Boton:
             if len(self.botones) == 0:
                 hijo.set_s(True)
@@ -93,9 +93,9 @@ class Pantalla(object):
 
         bg_color: Color a utilizar de fondo. Opcional. No implementado.
         """
-        Pantalla.pCurrent = self.nombre
+        Pantalla.Current = self.nombre
         self.state = True
-        for child in self.hijos:
+        for child in self.cuadros:
             child.draw()
         for boton in self.botones:
             self.botones[boton].draw()
@@ -129,14 +129,21 @@ class Pantalla(object):
             self.popup.get_key(tecla)
         else:
             print "Move"
-            self.handler.move(tecla)
+            k = self.handler.move(tecla)
+            if k is not None:
+                if k[0] is True and self.state is True:
+                    self.botones[k[1]].do_action()
+                else:
+                    self.botones[k[0]].set_s(False)
+                    self.botones[k[1]].set_s(True)
+
 
     def update(self):
         """Actualiza el contenido que se encuentra en pantalla. Por el momento,
         sólo se encarga de cuadros con texto que contenga variables y botones.
         """
         if self.state:
-            for child in self.hijos:
+            for child in self.cuadros:
                 child.redraw_text()
         if len(self.dirty_rects) > 0:
             pygame.display.update(self.dirty_rects)
@@ -161,7 +168,6 @@ class Pantalla(object):
             print self.secs_elapsed
             for e in self.screensavers.itervalues():
                 if self.secs_elapsed % e.get_sec() == 0:
-                    print "Pene"
                     e.next_pic()
 
     def has_screensaver(self):
@@ -243,7 +249,7 @@ class Cuadro(object):
         if string in self.variables:
             for elem in self.variables[string]:
                 if glob.var_changed(elem):
-                    pantallas[Pantalla.pCurrent]. \
+                    pantallas[Pantalla.Current]. \
                         rect_add(self.rects[string][1])
                     return True
         return False
@@ -395,7 +401,7 @@ class Cuadro(object):
             img_pos = Rect(self.pos[0], self.pos[1], self.pos[0] + elem[2],
                            self.pos[1] + elem[3])
             surface.blit(elem[0], img_pos)
-            pantallas[Pantalla.pCurrent].rect_add(img_pos)
+            pantallas[Pantalla.Current].rect_add(img_pos)
             #Cambiar esto por un verdadero update
             #pygame.display.flip()
 
@@ -430,7 +436,7 @@ class Boton(Cuadro):
         realiza la acción y devuelve el resultado de dicha acción"""
         action = self.action_string.split()[0]
         if action == 'OpenYAML':
-            pantallas[Pantalla.pCurrent].sleep()
+            pantallas[Pantalla.Current].sleep()
             name = self.action_string.split()[1] + '.yaml'
             if pantallas.has_key(name):
                 pantallas[name].awaken()
@@ -450,15 +456,15 @@ class Boton(Cuadro):
     def set_s(self, state):
         """Este estado se refiere a si se encuentra seleccionado o no. El
         cambio de estado cambia su color."""
-        if state == True:
+        if state:
             self.color = self.ac_color
             self.state = False
         else:
             self.color = self.in_color
             self.state = True
-        if pantallas[Pantalla.pCurrent].state == True:
+        if pantallas[Pantalla.Current].state:
             self.draw()
-            pantallas[Pantalla.pCurrent].rect_add(self.pos)
+            pantallas[Pantalla.Current].rect_add(self.pos)
 
 
 class Matrix(object):
@@ -517,7 +523,7 @@ class Matrix(object):
                 self.position[1] -= 1
         else:
             print "Warning: Movimiento no reconocido:", direction
-        while self.get_value() == []:
+        while not self.get_value():
             self.move(direction)
         return self.get_value()
 
@@ -527,10 +533,17 @@ class Matrix(object):
 #clase en varias objetos que no sean Pantalla.
 
 
-class input_handler(object):
+class InputHandler(object):
     """Por el momento, esta clase solamente se encarga de tratar con
     los botones. Recibe las entradas directamente de Pygame, y hace
-    los cambios necesario en la pantalla para reflejarlos en pantalla"""
+    los cambios necesario en la pantalla para reflejarlos en pantalla
+
+    Variables de retorno:
+
+    None: No ha habido ningun cambio
+    True: El boton seleccionado ha sido presionado
+    last selected, button name
+    """
 
     def __init__(self, pantalla_name):
         self.master = pantalla_name
@@ -547,76 +560,52 @@ class input_handler(object):
         self.empty = False
         self.last_selected = None
 
-    def state(self, act=True):  # Que mierda es esto?
-        self.active = act
-
     def move(self, mov):  # Tiene que ser un event.key
         if not self.mapa.blank():
             last_selected = self.mapa.get_value()
         else:
-            return
+            return None
         if mov == K_UP:
             self.mapa.move("Up")
             button_name = self.mapa.get_value()
-            pantallas[self.master].botones[last_selected].set_s(False)
             self.last_selected = button_name
-            pantallas[self.master].botones[button_name].set_s(True)
         elif mov == K_DOWN:
             self.mapa.move("Down")
             button_name = self.mapa.get_value()
-            pantallas[self.master].botones[last_selected].set_s(False)
             self.last_selected = button_name
-            pantallas[self.master].botones[button_name].set_s(True)
         elif mov == K_LEFT:
             self.mapa.move("Left")
             button_name = self.mapa.get_value()
-            pantallas[self.master].botones[last_selected].set_s(False)
             self.last_selected = button_name
-            pantallas[self.master].botones[button_name].set_s(True)
         elif mov == K_RIGHT:
             self.mapa.move("Right")
             button_name = self.mapa.get_value()
-            pantallas[self.master].botones[last_selected].set_s(False)
             self.last_selected = button_name
-            pantallas[self.master].botones[button_name].set_s(True)
         elif mov == K_RETURN:
             button_name = self.mapa.get_value()
-            pantallas[self.master].botones[button_name].do_action()
+            return True, button_name
         else:
             print "Tecla no reconocida:", mov
-        pantallas[Pantalla.pCurrent].update()
+            return None
+        return last_selected, button_name
+        #pantallas[Pantalla.Current].update()
 
 
-class Popup(Cuadro):
+class Popup(Pantalla):
     """Elemento el cual se coloca al frente de la pantalla, indicando algun
     error o adventencia. Se define un tiempo el cual va a estar activo, toma
     control del cualquier input en la pantalla, y tiene bonotes para aceptar
     o quitar la opcion. Este aparece siempre centrada en la patnalla
     """
 
-    def __init__(self, nombre, color, tamano, tiempo=5):
-        self.nombre = nombre
-        self.color = color
-        self.tamano = tamano
-        self.tiempo = time
-        self.botones = []
-        self.textos = []
-        self.imagenes = []
+    def __init__(self, nombre, col, tamano, tiempo=5, rounded = 0):
+        super(Popup, self).__init__(nombre, col)
+        self.tiempo = tiempo
         cx = surface.get_rect().centerx
         cy = surface.get_rect().centery
         pos = (cx - tamano[0] / 2, cy - tamano[1] / 2, tamano[0], tamano[1])
-        self.gotImage = False  #Parece que no se utiliza
-        self.input_handler = input_handler()
-
-    def add_button(self, button):
-        self.botones[button.name] = button
-        self.input_handler.add_button(button.name, *button.nav_xy)
-
-    def get_key(self, key):
-        if len(self.botones) == 0:
-            return
-        else:
-            self.input_handler.move(key)
+        def_caudro = Cuadro(nombre, col, pos, rounded)
+        self.adopt(def_caudro)
 
 
 class Screensaver(Cuadro):
@@ -627,6 +616,7 @@ class Screensaver(Cuadro):
         self.secs = 5
         self.cursor = 0
         self.img_num = 0
+        self.active = True
         super(Screensaver, self).__init__(*args)
 
     def get_image(self, *args):
@@ -644,12 +634,13 @@ class Screensaver(Cuadro):
 
     def next_pic(self):
         """Camvia la imagen la cual se va a mostrar en ese instante"""
-        print 'Cambiemos de image', self.cursor, self.img_num
+        #print 'Cambiemos de image', self.cursor, self.img_num
         if self.cursor == self.img_num - 1:
             self.cursor = 0
         else:
             self.cursor += 1
-        self.draw_image(self.cursor)
+        if self.active:
+            self.draw_image(self.cursor)
 
     def load_folder(self, name, x=0, y=0):
         """
@@ -659,7 +650,7 @@ class Screensaver(Cuadro):
         filelist = os.listdir(name)
         for e in filelist:
             if e.endswith('.png') or e.endswith('.jpg'):
-                print "Imagen añadida"
+                #print "Imagen añadida"
                 self.get_image(e, x, y, name)
 
 
@@ -752,14 +743,14 @@ class Screen(object):
         while running:
             clock.tick(fps)
             pygame.display.update()
-            if Pantalla.pCurrent is not None:
-                pantallas[Pantalla.pCurrent].update()
+            if Pantalla.Current is not None:
+                pantallas[Pantalla.Current].update()
             for event in pygame.event.get():
                 if event.type == QUIT:
                     pygame.quit()
                     sys.exit()
                 if event.type == KEYDOWN:
-                    print 'Tecla'
+                    #print 'Tecla'
                     if event.key == K_ESCAPE:
                         print "\nBye Bye"
                         pygame.quit()
@@ -767,13 +758,13 @@ class Screen(object):
                     elif event.key == K_q:
                         print "Press ESC to quit"
                     elif event.key == K_a:
-                        pantallas[Pantalla.pCurrent].awaken()
+                        pantallas[Pantalla.Current].awaken()
                     elif event.key == K_s:
-                        pantallas[Pantalla.pCurrent].sleep()
+                        pantallas[Pantalla.Current].sleep()
                     else:
-                        pantallas[Pantalla.pCurrent].key(event.key)
+                        pantallas[Pantalla.Current].key(event.key)
                 if event.type == sec:
-                    pantallas[Pantalla.pCurrent].sec()
+                    pantallas[Pantalla.Current].sec()
         return 0
 
 
