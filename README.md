@@ -1,6 +1,8 @@
-# Newtech's UI #
+# Pygame SSUI #
 
-Desarrollo de una versión preeliminar para el futuro sistema de ventas de gas de Newtech. Visita la Wiki para tener mas información acerca del estado del desarollo.
+SSUI = Simple and Stupid User Interface. This small tool is for create a menu or interface with the use of Pygame. It's not intended to be used as a complement to games, but as a tool when a project needs a quick and dirty interface, for example, a graphical menu to control the GPIO for the Raspberry Pi.
+
+Currently the rest of this project is on spanish.
 
 ### Funciones ###
 
