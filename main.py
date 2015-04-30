@@ -18,7 +18,8 @@ settings = {}
 
 def load_values(filename):
     settings = pickle.load( open("settings.txt", "rb"))
-    glob.set_variable(sets, settings)
+    for key in settings #wave, freq, time, gain
+        glob.set_variable(key, settings[key])
     
 
 def main():
@@ -39,3 +40,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

@@ -17,6 +17,9 @@ import glob
 
 pi = False
 
+#Parche feo, eliminar lo mas pronto posible:
+input_on = False
+
 if os.uname()[4].startswith("arm"):
     print "Corremos en Raspberry Pi!"
     pi = True
@@ -64,6 +67,8 @@ class Pantalla(object):
         self.screensavers = {}
         self.popup_state = False
         self.popup = None
+        self.inputs = {} #Kill me plz
+        self.has_inputs = False
         #Variables de comportamiento
         self.handler = input_handler(self.nombre)
         Pantalla.pCount += 1
@@ -73,7 +78,7 @@ class Pantalla(object):
         
         if Pantalla.pCurrent is None:
             Pantalla.pCurrent = self.nombre
-
+    
     def adopt(self, hijo):
         """'Adopta' un objeto el cual se va a mostrar en la pantalla, como un
         cuadro o un boton. Estos seran mostrados en pantalla al utlizar awaken
@@ -92,6 +97,10 @@ class Pantalla(object):
         elif type(hijo) is Screensaver:
             self.has_ss = True
             self.screensavers[hijo.name] = hijo
+        elif type(hijo) is Input:
+            self.has_ss = True
+            self.inputs[hijo.name] = hijo
+            print "Input %s cargado en pantalla" % hijo.name
         else:
             print "Advertencia: hijo no reconocido:", type(hijo)
 
@@ -108,6 +117,8 @@ class Pantalla(object):
         for boton in self.botones:
             self.botones[boton].draw()
         for s in self.screensavers.itervalues():
+            s.draw()
+        for s in self.inputs:
             s.draw()
         pygame.display.update()
 
@@ -136,7 +147,6 @@ class Pantalla(object):
         if self.popup_state:
             self.popup.get_key(tecla)
         else:
-            print "Ass"
             self.handler.move(tecla)
 
     def update(self):
@@ -175,6 +185,11 @@ class Pantalla(object):
     def has_screensaver(self):
         """Dice si tiene screensavers"""
         return self.has_ss
+        
+    def send_to_input(ch):
+        if self.has_inputs:
+            for i in self.inputs:
+                if i.enter(ch)
 
 
 class Cuadro(object):
@@ -419,11 +434,6 @@ class Cuadro(object):
         else:
             self.draw_image(0)  # Solo dibujar la primer imagen
 
-class Input(Cuadro):
-    """ALTAMENTE EXPERIMENTAL
-    Cuadro de dialogo para  insertar texto
-    """
-    #if pi
 
 class Boton(Cuadro):
     """Crea un boton intereactivo en la pantalla. Puede tener diferentes
@@ -473,7 +483,38 @@ class Boton(Cuadro):
             self.draw()
             pantallas[Pantalla.pCurrent].rect_add(self.pos)
 
-
+class Input(Cuadro):
+    """ALTAMENTE EXPERIMENTAL
+    Cuadro de dialogo para  insertar texto
+    """
+    def __init__(self):
+        self.namevalue = ''
+        self.value = 0
+        super(Input, self).__init__(*args)
+        
+    def enter(char):
+        if char.isdigit():
+            add(char)
+        elif char == "*":
+            delete()
+        elif char == "#":
+            #save data
+            pantallas['piezo'].awaken()
+    def set_input_vars(name):
+        self.namevalue = name
+        self.value = int(glob.get_variable(name))
+    
+    def delete():
+        if self.value < 10:
+            self.value = 0
+        else:
+            self.value = int(str(self.value)[:-1]))
+        glob.change_variable(self.namevalue, self.value)
+    
+    def add(n):
+        self.value = int(str(self.value) + str(n)))
+        glob.change_variable(self.namevalue, self.value)
+        
 class Matrix(object):
     """Matriz para el uso de botones y de menues, qque asigna posiciones
     de los objeteos y devuelve el objeto si se mueve hacia arriba, abajo
@@ -563,7 +604,12 @@ class input_handler(object):
     def state(self, act=True):  # Que mierda es esto?
         self.active = act
 
-    def move(self, mov):  # Tiene que ser un event.key     
+    def move(self, mov):  # Tiene que ser un event.key
+        #Cosas para el input
+        if pantallas[Pantalla.pCurrent].has_inputs:
+            if mov.startswith('k'):
+                num = mov[-1]
+                pantallas[Pantalla.pCurrent].send_to_input(num)
         if not self.mapa.blank():
             last_selected = self.mapa.get_value()
         else:
@@ -881,6 +927,37 @@ def load_yaml(filename, folder='screens'):
                 if 'Folder' in s:
                     scr.load_folder(s['Folder'])
                 pantallas[filename].adopt(scr)
+        if 'Input' in tree['Pantalla']:
+            for e in tree['Pantalla']['Caja']:
+                nombre = e['_Nombre']
+                alto = e['Alto']
+                ancho = e['Ancho']
+                col = e['Color']
+                posx = e['PosX']
+                posy = e['PosY']
+                redo = e['Redondez']
+                in_var = e['Variable']
+                pos = (posx, posy, ancho, alto)
+                c = Input(nombre, col, pos, redo)
+                c.set_input_vars(in_var)
+                if 'Texto' in e:
+                    for t in e['Texto'],:
+                        t_string = t['Text'] #Texto inicial, debe ser numerico
+                        t_size = t['Tamano']
+                        t_font = t['Fuente']
+                        t_color = t['Color']
+                        t_line = t['Linea']
+                        t_align = t['Alineacion']
+                        c.get_text(t_string, t_size, t_font, t_color,
+                                   line=t_line, align=t_align)
+                if 'Imagen' in e:
+                    for i in e['Imagen'],:
+                        i_file = i['Filename']
+                        i_posx = i['PosX']
+                        i_posy = i['PosY']
+                        c.get_image(i_file, i_posx, i_posy)
+                pantallas[filename].adopt(c)
+                
     else:
         print "YAML invalido!"
 

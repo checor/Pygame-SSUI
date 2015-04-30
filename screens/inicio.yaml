@@ -62,3 +62,21 @@ Pantalla:
     Text: "Regresar: *"
     Color: White
    _Nombre: "Boton 1"
+ Input:
+  -
+  PosX: 100
+  PosY: 100
+  Alto: 60
+  Ancho: 140
+  Color: White
+  Redondez: ".4"
+  Variable: "time"
+  Texto:
+   Fuente: Monospace
+   Alineacion: 0
+   Tamano: 18
+   Text: "\"%v\" % time"
+   Linea: 0
+   Nombre: "titulo0"
+   Color: Black
+  _Nombre: "Variable perrona"
