@@ -18,11 +18,13 @@ settings = {}
 
 def load_values(filename):
     settings = pickle.load( open("settings.txt", "rb"))
-    for key in settings #wave, freq, time, gain
+    for key in settings: #wave, freq, time, gain
         glob.set_variable(key, settings[key])
     
 
 def main():
+    
+    load_values("")
     
     scr = screen.Screen()
     scr_t = threading.Thread(target=scr.start, args=('piezo.yaml',))

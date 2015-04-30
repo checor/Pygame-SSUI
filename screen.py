@@ -19,6 +19,7 @@ pi = False
 
 #Parche feo, eliminar lo mas pronto posible:
 input_on = False
+num_changed = False
 
 if os.uname()[4].startswith("arm"):
     print "Corremos en Raspberry Pi!"
@@ -98,7 +99,7 @@ class Pantalla(object):
             self.has_ss = True
             self.screensavers[hijo.name] = hijo
         elif type(hijo) is Input:
-            self.has_ss = True
+            self.has_inputs = True
             self.inputs[hijo.name] = hijo
             print "Input %s cargado en pantalla" % hijo.name
         else:
@@ -119,7 +120,7 @@ class Pantalla(object):
         for s in self.screensavers.itervalues():
             s.draw()
         for s in self.inputs:
-            s.draw()
+            self.inputs[s].draw()
         pygame.display.update()
 
     def sleep(self, bg_color='Ivory'):
@@ -153,12 +154,20 @@ class Pantalla(object):
         """Actualiza el contenido que se encuentra en pantalla. Por el momento,
         sólo se encarga de cuadros con texto que contenga variables y botones.
         """
+        global num_changed
         if self.state:
             for child in self.hijos:
                 child.redraw_text()
         if len(self.dirty_rects) > 0:
             pygame.display.update(self.dirty_rects)
         self.dirty_rects = []
+        if self.has_inputs:
+            for i in self.inputs:
+                self.inputs[i].redraw_text()
+            if num_changed:
+                self.awaken()
+                num_changed = False
+
 
     def rect_add(self, rect):
         """Añade un rectangulo el cual se va a actualizar al cambio de
@@ -186,10 +195,11 @@ class Pantalla(object):
         """Dice si tiene screensavers"""
         return self.has_ss
         
-    def send_to_input(ch):
+    def send_to_input(self, ch):
         if self.has_inputs:
             for i in self.inputs:
-                if i.enter(ch)
+                self.inputs[i].enter(ch)
+
 
 
 class Cuadro(object):
@@ -487,32 +497,37 @@ class Input(Cuadro):
     """ALTAMENTE EXPERIMENTAL
     Cuadro de dialogo para  insertar texto
     """
-    def __init__(self):
+    def __init__(self, *args):
+	super(Input, self).__init__(*args)
         self.namevalue = ''
         self.value = 0
-        super(Input, self).__init__(*args)
         
-    def enter(char):
+        
+    def enter(self, char):
+        global num_changed
         if char.isdigit():
-            add(char)
+            self.add(char)
+            num_changed = True
         elif char == "*":
-            delete()
+            self.delete()
         elif char == "#":
             #save data
-            pantallas['piezo'].awaken()
-    def set_input_vars(name):
+            glob.pickle_save()
+            pantallas[Pantalla.pCurrent].sleep()
+            pantallas['piezo.yaml'].awaken()
+    def set_input_vars(self, name):
         self.namevalue = name
         self.value = int(glob.get_variable(name))
     
-    def delete():
+    def delete(self):
         if self.value < 10:
             self.value = 0
         else:
-            self.value = int(str(self.value)[:-1]))
+            self.value = int(str(self.value)[:-1])
         glob.change_variable(self.namevalue, self.value)
     
-    def add(n):
-        self.value = int(str(self.value) + str(n)))
+    def add(self, n):
+        self.value = int(str(self.value) + str(n))
         glob.change_variable(self.namevalue, self.value)
         
 class Matrix(object):
@@ -607,9 +622,11 @@ class input_handler(object):
     def move(self, mov):  # Tiene que ser un event.key
         #Cosas para el input
         if pantallas[Pantalla.pCurrent].has_inputs:
+            print "Tenemos un input en este lado"
             if mov.startswith('k'):
                 num = mov[-1]
                 pantallas[Pantalla.pCurrent].send_to_input(num)
+            return
         if not self.mapa.blank():
             last_selected = self.mapa.get_value()
         else:
@@ -928,7 +945,7 @@ def load_yaml(filename, folder='screens'):
                     scr.load_folder(s['Folder'])
                 pantallas[filename].adopt(scr)
         if 'Input' in tree['Pantalla']:
-            for e in tree['Pantalla']['Caja']:
+            for e in tree['Pantalla']['Input']:
                 nombre = e['_Nombre']
                 alto = e['Alto']
                 ancho = e['Ancho']
@@ -939,6 +956,7 @@ def load_yaml(filename, folder='screens'):
                 in_var = e['Variable']
                 pos = (posx, posy, ancho, alto)
                 c = Input(nombre, col, pos, redo)
+                print in_var
                 c.set_input_vars(in_var)
                 if 'Texto' in e:
                     for t in e['Texto'],:

@@ -1,9 +1,18 @@
 """Variables globales que se intercambian entre los diferentes .py"""
 
-import Queue
+import Queue, pickle
+
+def pickle_save():
+    a = ["freq", "wave" ,"gain", "time"]
+    b= {}
+    for i in a:
+        b[i] = get_variable(i)
+    pickle.dump(b, open("settings.txt", "wb"))
 
 def set_variable(name, val = None):
+    print "Added %s " % name
     dicc[name] = val
+    dicc_changes[name] = True
 
 def get_variable(name):
     if name in dicc:
