@@ -1,0 +1,153 @@
+Pantalla:
+ Caja:
+ -
+  PosX: 5
+  PosY: 5
+  Alto: 60
+  Ancho: 60
+  Color: White
+  Redondez: ".4"
+  Imagen:
+   Filename: "lince.jpeg"
+   PosX: 0
+   PosY: 0
+   Nombre: "Lince"
+  _Nombre: "Caja 1"
+ -
+  PosX: 250
+  PosY: 5
+  Alto: 60
+  Ancho: 60
+  Color: White
+  Redondez: ".4"
+  Imagen:
+   Filename: "mecatronica.png"
+   PosX: 0
+   PosY: 0
+   Nombre: "Meca"
+  _Nombre: "Caja 2"
+ -
+  PosX: 65
+  PosY: 15
+  Alto: 20
+  Ancho: 180
+  Color: Green
+  Redondez: ".4"
+  Texto:
+   Fuente: Monospace
+   Alineacion: 0
+   Tamano: 18
+   Text: "Seleccione onda"
+   Linea: 0
+   Nombre: "titulo"
+   Color: Black
+  _Nombre: "Caja 3"
+ -
+  PosX: 20
+  PosY: 65
+  Alto: 163
+  Ancho: 116
+  Color: "Light grey"
+  Redondez: ".4"
+  Imagen:
+   Filename: "ondas.png"
+   PosX: 0
+   PosY: 0
+   Nombre: "Meca1"
+  _Nombre: "Caja 2"
+ Boton:
+  -
+   Alto: 25
+   Ancho: 115 
+   PosX: 210
+   PosY: 220
+   ValX: 0
+   ValY: 0
+   Color_activo: Blue
+   Color_inactivo: Blue
+   Accion: "OpenYAML piezo"
+   Redondez: ".4"
+   Texto: 
+    Fuente: Monospace
+    Alineacion: -1
+    Linea: 0
+    Tamano: 12
+    Text: "Regresar: *"
+    Color: White
+   _Nombre: "Boton 1"
+  -
+   Alto: 25
+   Ancho: 120 
+   PosX: 180
+   PosY: 70
+   ValX: 0
+   ValY: 1
+   Color_activo: Blue
+   Color_inactivo: White
+   Accion: "OpenYAML piezo"
+   Redondez: ".4"
+   Texto: 
+    Fuente: Monospace
+    Alineacion: -1
+    Linea: 0
+    Tamano: 12
+    Text: "A: Senoidal"
+    Color: White
+   _Nombre: "Seno"
+  -
+   Alto: 25
+   Ancho: 115 
+   PosX: 180
+   PosY: 110
+   ValX: 0
+   ValY: 2
+   Color_activo: Grey
+   Color_inactivo: White
+   Accion: "OpenYAML piezo"
+   Redondez: ".4"
+   Texto: 
+    Fuente: Monospace
+    Alineacion: -1
+    Linea: 0
+    Tamano: 12
+    Text: "B: Cuadrada"
+    Color: White
+   _Nombre: "Cuadrado"
+  -
+   Alto: 25
+   Ancho: 115 
+   PosX: 180
+   PosY: 160
+   ValX: 0
+   ValY: 3
+   Color_activo: Grey
+   Color_inactivo: White
+   Accion: "OpenYAML piezo"
+   Redondez: ".4"
+   Texto: 
+    Fuente: Monospace
+    Alineacion: -1
+    Linea: 0
+    Tamano: 12
+    Text: "C: Triangular"
+    Color: White
+   _Nombre: "Triangulo"
+  -
+   Alto: 25
+   Ancho: 115 
+   PosX: 180
+   PosY: 190
+   ValX: 0
+   ValY: 4
+   Color_activo: Grey
+   Color_inactivo: White
+   Accion: "OpenYAML piezo"
+   Redondez: ".4"
+   Texto: 
+    Fuente: Monospace
+    Alineacion: -1
+    Linea: 0
+    Tamano: 12
+    Text: "D: Sierra"
+    Color: White
+   _Nombre: "Sierra"

@@ -15,11 +15,18 @@ import yaml
 
 import glob
 
+pi = False
+
+if os.uname()[4].startswith("arm"):
+    print "Corremos en Raspberry Pi!"
+    pi = True
+    import GPIO
+
 # Variables para Pygame
 #modificar dependiendo de la pantalla a utilizar
 size = width, height = 320, 240  # Elegimos el tamano de la pantalla
 surface = pygame.display.set_mode(size, 0, 24)  # Pantalla completa a futuro
-pygame.display.set_caption("Newtech Software")  # Nombre de la ventana
+pygame.display.set_caption("Piezo")  # Nombre de la ventana
 fps = 30  # Frames a los cuales se va a trabajar
 
 #Colores de guia de Firefox OS
@@ -63,6 +70,7 @@ class Pantalla(object):
         self.dirty_rects = []
         self.state = False
         self.secs_elapsed = 0
+        
         if Pantalla.pCurrent is None:
             Pantalla.pCurrent = self.nombre
 
@@ -128,7 +136,7 @@ class Pantalla(object):
         if self.popup_state:
             self.popup.get_key(tecla)
         else:
-            print "Move"
+            print "Ass"
             self.handler.move(tecla)
 
     def update(self):
@@ -155,7 +163,6 @@ class Pantalla(object):
         """Se llama cada segundo, para saber si se necesita cambiar un
         screensaver"""
         if self.screensavers == {}:
-            print '<.<'
             return
         else:
             self.secs_elapsed += 1
@@ -412,6 +419,11 @@ class Cuadro(object):
         else:
             self.draw_image(0)  # Solo dibujar la primer imagen
 
+class Input(Cuadro):
+    """ALTAMENTE EXPERIMENTAL
+    Cuadro de dialogo para  insertar texto
+    """
+    #if pi
 
 class Boton(Cuadro):
     """Crea un boton intereactivo en la pantalla. Puede tener diferentes
@@ -551,30 +563,30 @@ class input_handler(object):
     def state(self, act=True):  # Que mierda es esto?
         self.active = act
 
-    def move(self, mov):  # Tiene que ser un event.key
+    def move(self, mov):  # Tiene que ser un event.key     
         if not self.mapa.blank():
             last_selected = self.mapa.get_value()
         else:
             return
-        if mov == K_UP:
+        if mov == K_UP or mov == 'k8':
             self.mapa.move("Up")
             button_name = self.mapa.get_value()
             pantallas[self.master].botones[last_selected].set_s(False)
             self.last_selected = button_name
             pantallas[self.master].botones[button_name].set_s(True)
-        elif mov == K_DOWN:
+        elif mov == K_DOWN or mov == 'k2':
             self.mapa.move("Down")
             button_name = self.mapa.get_value()
             pantallas[self.master].botones[last_selected].set_s(False)
             self.last_selected = button_name
             pantallas[self.master].botones[button_name].set_s(True)
-        elif mov == K_LEFT:
+        elif mov == K_LEFT or mov == 'k4':
             self.mapa.move("Left")
             button_name = self.mapa.get_value()
             pantallas[self.master].botones[last_selected].set_s(False)
             self.last_selected = button_name
             pantallas[self.master].botones[button_name].set_s(True)
-        elif mov == K_RIGHT:
+        elif mov == K_RIGHT or mov == 'k6':
             self.mapa.move("Right")
             button_name = self.mapa.get_value()
             pantallas[self.master].botones[last_selected].set_s(False)
@@ -583,6 +595,8 @@ class input_handler(object):
         elif mov == K_RETURN:
             button_name = self.mapa.get_value()
             pantallas[self.master].botones[button_name].do_action()
+        #Pantalla matricial
+        
         else:
             print "Tecla no reconocida:", mov
         pantallas[Pantalla.pCurrent].update()
@@ -616,6 +630,7 @@ class Popup(Cuadro):
     def get_key(self, key):
         if len(self.botones) == 0:
             return
+        #elif pi == True and 
         else:
             self.input_handler.move(key)
 
@@ -751,6 +766,10 @@ class Screen(object):
         load_yaml(filename)
         pygame.display.update()
         running = True
+        #Pantalla Matricial
+        if pi == True:
+            kp = RPi_GPIO.keypad(ColumnCount = 4)
+            last_key = kp.getKey()
         while running:
             clock.tick(fps)
             if Pantalla.pCurrent is not None:
@@ -773,6 +792,14 @@ class Screen(object):
                         pantallas[Pantalla.pCurrent].sleep()
                     else:
                         pantallas[Pantalla.pCurrent].key(event.key)
+                #Pantalla matricial
+                if pi == True:
+                    cur_key = kp.get_key()
+                    if cur_key not None and cur_key != last_key:
+                        pantallas[Pantalla.pCurrent].key('k'+str(cur_key))
+                        print "Presionado keypad"
+                    last_key=cur_key
+                #Fin pantalla    
                 if event.type == sec:
                     pantallas[Pantalla.pCurrent].sec()
 

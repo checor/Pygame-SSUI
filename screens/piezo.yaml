@@ -1,0 +1,141 @@
+Pantalla:
+ Caja:
+ -
+  PosX: 5
+  PosY: 5
+  Alto: 60
+  Ancho: 60
+  Color: White
+  Redondez: ".4"
+  Imagen:
+   Filename: "lince.jpeg"
+   PosX: 0
+   PosY: 0
+   Nombre: "Lince"
+  _Nombre: "Caja 1"
+ -
+  PosX: 250
+  PosY: 5
+  Alto: 60
+  Ancho: 60
+  Color: White
+  Redondez: ".4"
+  Imagen:
+   Filename: "mecatronica.png"
+   PosX: 0
+   PosY: 0
+   Nombre: "Meca"
+  _Nombre: "Caja 2"
+ -
+  PosX: 65
+  PosY: 15
+  Alto: 20
+  Ancho: 180
+  Color: Green
+  Redondez: ".4"
+  Texto:
+   Fuente: Monospace
+   Alineacion: 0
+   Tamano: 18
+   Text: "Control de piezo"
+   Linea: 0
+   Nombre: "titulo"
+   Color: Black
+  _Nombre: "Caja 3"
+ -
+  PosX: 6
+  PosY: 80
+  Alto: 30
+  Ancho: 300
+  Color: Light grey
+  Redondez: ".4"
+  Texto:
+   Fuente: Monospace
+   Alineacion: 0
+   Tamano: 18
+   Text: "Seleccione una opcion:"
+   Linea: 0
+   Nombre: "titulo"
+   Color: Black
+  _Nombre: "Caja 4"
+ Boton:
+  - 
+   Alto: 30
+   Ancho: 100
+   PosX: 15
+   PosY: 160
+   ValX: 0
+   ValY: 0
+   Color_activo: White
+   Color_inactivo: White
+   Accion: "OpenYAML onda"
+   Redondez: ".4"
+   Texto:
+    Fuente: Monospace
+    Alineacion: -1
+    Tamano: 18
+    Text: "A: Onda"
+    Linea: 0
+    Nombre: "titulo"
+    Color: Black
+   _Nombre: "Boton 1"
+  -
+   Alto: 30
+   Ancho: 100
+   PosX: 180
+   PosY: 160
+   ValX: 0
+   ValY: 1
+   Color_activo: White
+   Color_inactivo: White
+   Accion: "OpenYAML freq"
+   Redondez: ".4"
+   Texto:
+    Fuente: Monospace
+    Alineacion: -1
+    Tamano: 18
+    Text: "B: Freq"
+    Linea: 0
+    Nombre: "titulo7"
+    Color: Black
+   _Nombre: "Boton 2"
+  -
+   Alto: 30
+   Ancho: 160
+   PosX: 15
+   PosY: 200
+   ValX: 1
+   ValY: 0
+   Color_activo: White
+   Color_inactivo: White
+   Accion: "OpenYAML gain"
+   Redondez: ".4"
+   Texto:
+    Fuente: Monospace
+    Alineacion: -1
+    Tamano: 18
+    Text: "C: Ganancia"
+    Linea: 0
+    Nombre: "titulo8"
+    Color: Black
+   _Nombre: "Boton 3"
+  -
+   Alto: 30
+   Ancho: 100
+   PosX: 180
+   PosY: 200
+   ValX: 1
+   ValY: 1
+   Color_activo: White
+   Color_inactivo: White
+   Accion: "OpenYAML inicio"
+   Redondez: ".4"
+   Texto:
+    Fuente: Monospace
+    Alineacion: -1
+    Tamano: 18
+    Text: "D: Inicio"
+    Linea: 0
+    Nombre: "titulo9"
+    Color: Black
+   _Nombre: "Boton 4"

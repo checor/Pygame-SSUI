@@ -1,0 +1,14 @@
+(dp0
+S'freq'
+p1
+I1000
+sS'time'
+p2
+I0
+sS'gain'
+p3
+I100
+sS'wave'
+p4
+I0
+s.

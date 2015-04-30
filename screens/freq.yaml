@@ -1,0 +1,80 @@
+Pantalla:
+ Caja:
+ -
+  PosX: 5
+  PosY: 5
+  Alto: 60
+  Ancho: 60
+  Color: White
+  Redondez: ".4"
+  Imagen:
+   Filename: "lince.jpeg"
+   PosX: 0
+   PosY: 0
+   Nombre: "Lince"
+  _Nombre: "Caja 1"
+ -
+  PosX: 250
+  PosY: 5
+  Alto: 60
+  Ancho: 60
+  Color: White
+  Redondez: ".4"
+  Imagen:
+   Filename: "mecatronica.png"
+   PosX: 0
+   PosY: 0
+   Nombre: "Meca"
+  _Nombre: "Caja 2"
+ -
+  PosX: 65
+  PosY: 15
+  Alto: 20
+  Ancho: 180
+  Color: Green
+  Redondez: ".4"
+  Texto:
+   Fuente: Monospace
+   Alineacion: 0
+   Tamano: 18
+   Text: "Frecuencia:"
+   Linea: 0
+   Nombre: "titulo"
+   Color: Black
+  _Nombre: "Caja 3"
+ -
+  PosX: 0
+  PosY: 100
+  Alto: 20
+  Ancho: 240
+  Color: White
+  Redondez: ".4"
+  Texto:
+   Fuente: Monospace
+   Alineacion: 0
+   Tamano: 14
+   Text: "Inserte frecuencia en Hz"
+   Linea: 0
+   Nombre: "titulo"
+   Color: Black
+  _Nombre: "Caja 4"
+ Boton:
+  -
+   Alto: 25
+   Ancho: 115 
+   PosX: 210
+   PosY: 220
+   ValX: 0
+   ValY: 0
+   Color_activo: Blue
+   Color_inactivo: Blue
+   Accion: "OpenYAML piezo"
+   Redondez: ".4"
+   Texto: 
+    Fuente: Monospace
+    Alineacion: -1
+    Linea: 0
+    Tamano: 12
+    Text: "Regresar: *"
+    Color: White
+   _Nombre: "Boton 1"
