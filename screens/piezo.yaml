@@ -59,14 +59,54 @@ Pantalla:
    Color: Black
   _Nombre: "Caja 4"
  Boton:
+  -
+   Alto: 30
+   Ancho: 100
+   PosX: 15
+   PosY: 110
+   ValX: 0
+   ValY: 0
+   Color_activo: Blue
+   Color_inactivo: White
+   Accion: "Wavves_start"
+   Redondez: ".4"
+   Texto:
+    Fuente: Monospace
+    Alineacion: -1
+    Tamano: 18
+    Text: "Inicio"
+    Linea: 0
+    Nombre: "titulo"
+    Color: Black
+   _Nombre: "Boton strat"
+  - 
+   Alto: 30
+   Ancho: 100
+   PosX: 180
+   PosY: 110
+   ValY: 1
+   ValX: 0
+   Color_activo: Blue
+   Color_inactivo: White
+   Accion: "Wavves_stop"
+   Redondez: ".4"
+   Texto:
+    Fuente: Monospace
+    Alineacion: -1
+    Tamano: 18
+    Text: "Stop"
+    Linea: 0
+    Nombre: "titulo"
+    Color: Black
+   _Nombre: "Boton stop"
   - 
    Alto: 30
    Ancho: 100
    PosX: 15
    PosY: 160
-   ValX: 0
    ValY: 0
-   Color_activo: White
+   ValX: 1
+   Color_activo: Blue
    Color_inactivo: White
    Accion: "OpenYAML onda"
    Redondez: ".4"
@@ -74,7 +114,7 @@ Pantalla:
     Fuente: Monospace
     Alineacion: -1
     Tamano: 18
-    Text: "A: Onda"
+    Text: "Onda"
     Linea: 0
     Nombre: "titulo"
     Color: Black
@@ -84,9 +124,9 @@ Pantalla:
    Ancho: 100
    PosX: 180
    PosY: 160
-   ValX: 0
    ValY: 1
-   Color_activo: White
+   ValX: 1
+   Color_activo: Blue
    Color_inactivo: White
    Accion: "OpenYAML freq"
    Redondez: ".4"
@@ -94,19 +134,19 @@ Pantalla:
     Fuente: Monospace
     Alineacion: -1
     Tamano: 18
-    Text: "B: Freq"
+    Text: "Freq"
     Linea: 0
     Nombre: "titulo7"
     Color: Black
    _Nombre: "Boton 2"
   -
    Alto: 30
-   Ancho: 160
+   Ancho: 100
    PosX: 15
    PosY: 200
-   ValX: 1
    ValY: 0
-   Color_activo: White
+   ValX: 2
+   Color_activo: Blue
    Color_inactivo: White
    Accion: "OpenYAML gain"
    Redondez: ".4"
@@ -114,7 +154,7 @@ Pantalla:
     Fuente: Monospace
     Alineacion: -1
     Tamano: 18
-    Text: "C: Ganancia"
+    Text: "Ganancia"
     Linea: 0
     Nombre: "titulo8"
     Color: Black
@@ -124,9 +164,9 @@ Pantalla:
    Ancho: 100
    PosX: 180
    PosY: 200
-   ValX: 1
    ValY: 1
-   Color_activo: White
+   ValX: 2
+   Color_activo: Blue
    Color_inactivo: White
    Accion: "OpenYAML inicio"
    Redondez: ".4"
@@ -134,7 +174,7 @@ Pantalla:
     Fuente: Monospace
     Alineacion: -1
     Tamano: 18
-    Text: "D: Inicio"
+    Text: "Timer"
     Linea: 0
     Nombre: "titulo9"
     Color: Black

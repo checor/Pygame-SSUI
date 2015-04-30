@@ -14,6 +14,7 @@ import os
 import yaml
 
 import glob
+import wavves
 
 pi = False
 
@@ -479,7 +480,15 @@ class Boton(Cuadro):
             pass
         elif action == 'Poweroff':
             print "Comienza secuencia de apagado iniciada por el usuario"
-
+        elif action == "Wavves_start":
+            wavves.start(glob.get_variable("wave"),glob.get_variable("freq"),
+                glob.get_variable("gain"),glob.get_variable("time"))
+        elif action == "Wavves_stop":
+            wavves.stop()
+        elif action == "set_wave":
+            print self.action_string.split()[1]
+            glob.set_variable("wave", self.action_string.split()[1])
+            glob.pickle_save()
     def set_s(self, state):
         """Este estado se refiere a si se encuentra seleccionado o no. El
         cambio de estado cambia su color."""
@@ -623,10 +632,13 @@ class input_handler(object):
         #Cosas para el input
         if pantallas[Pantalla.pCurrent].has_inputs:
             print "Tenemos un input en este lado"
-            if mov.startswith('k'):
-                num = mov[-1]
-                pantallas[Pantalla.pCurrent].send_to_input(num)
-            return
+            try:
+                if mov.startswith('k'):
+                    num = mov[-1]
+                    pantallas[Pantalla.pCurrent].send_to_input(num)
+                return
+            except:
+                pass
         if not self.mapa.blank():
             last_selected = self.mapa.get_value()
         else:

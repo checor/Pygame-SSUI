@@ -58,13 +58,13 @@ Pantalla:
  Boton:
   -
    Alto: 25
-   Ancho: 115 
+   Ancho: 115
    PosX: 210
    PosY: 220
    ValX: 0
    ValY: 0
    Color_activo: Blue
-   Color_inactivo: Blue
+   Color_inactivo: White
    Accion: "OpenYAML piezo"
    Redondez: ".4"
    Texto: 
@@ -80,18 +80,18 @@ Pantalla:
    Ancho: 120 
    PosX: 180
    PosY: 70
-   ValX: 0
-   ValY: 1
+   ValX: 1
+   ValY: 0
    Color_activo: Blue
    Color_inactivo: White
-   Accion: "OpenYAML piezo"
+   Accion: "set_wave sin"
    Redondez: ".4"
    Texto: 
     Fuente: Monospace
     Alineacion: -1
     Linea: 0
     Tamano: 12
-    Text: "A: Senoidal"
+    Text: "Senoidal"
     Color: White
    _Nombre: "Seno"
   -
@@ -99,18 +99,18 @@ Pantalla:
    Ancho: 115 
    PosX: 180
    PosY: 110
-   ValX: 0
-   ValY: 2
-   Color_activo: Grey
+   ValX: 2
+   ValY: 0
+   Color_activo: Blue
    Color_inactivo: White
-   Accion: "OpenYAML piezo"
+   Accion: "set_wave square"
    Redondez: ".4"
    Texto: 
     Fuente: Monospace
     Alineacion: -1
     Linea: 0
     Tamano: 12
-    Text: "B: Cuadrada"
+    Text: "Cuadrada"
     Color: White
    _Nombre: "Cuadrado"
   -
@@ -118,18 +118,18 @@ Pantalla:
    Ancho: 115 
    PosX: 180
    PosY: 160
-   ValX: 0
-   ValY: 3
-   Color_activo: Grey
+   ValX: 3
+   ValY: 0
+   Color_activo: Blue
    Color_inactivo: White
-   Accion: "OpenYAML piezo"
+   Accion: "set_wave triangle"
    Redondez: ".4"
    Texto: 
     Fuente: Monospace
     Alineacion: -1
     Linea: 0
     Tamano: 12
-    Text: "C: Triangular"
+    Text: "Triangular"
     Color: White
    _Nombre: "Triangulo"
   -
@@ -137,17 +137,17 @@ Pantalla:
    Ancho: 115 
    PosX: 180
    PosY: 190
-   ValX: 0
-   ValY: 4
-   Color_activo: Grey
+   ValX: 4
+   ValY: 0
+   Color_activo: Blue
    Color_inactivo: White
-   Accion: "OpenYAML piezo"
+   Accion: "set_wave sawtooth"
    Redondez: ".4"
    Texto: 
     Fuente: Monospace
     Alineacion: -1
     Linea: 0
     Tamano: 12
-    Text: "D: Sierra"
+    Text: "Sierra"
     Color: White
    _Nombre: "Sierra"

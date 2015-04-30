@@ -10,5 +10,6 @@ p3
 I100
 sS'wave'
 p4
-I0
+S'sin'
+p5
 s.

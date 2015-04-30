@@ -37,11 +37,27 @@ Pantalla:
    Fuente: Monospace
    Alineacion: 0
    Tamano: 18
-   Text: "Inicio / Timer"
+   Text: "Timer"
    Linea: 0
    Nombre: "titulo"
    Color: Black
   _Nombre: "Caja 3"
+ -
+  PosX: 0
+  PosY: 100
+  Alto: 20
+  Ancho: 240
+  Color: White
+  Redondez: ".4"
+  Texto:
+   Fuente: Monospace
+   Alineacion: 0
+   Tamano: 14
+   Text: "Tiempo en segundos"
+   Linea: 0
+   Nombre: "titulo"
+   Color: Black
+  _Nombre: "Caja cuacc"
  Boton:
   -
    Alto: 25
@@ -59,13 +75,13 @@ Pantalla:
     Alineacion: -1
     Linea: 0
     Tamano: 12
-    Text: "Regresar: *"
+    Text: "Regresar: #"
     Color: White
    _Nombre: "Boton 1"
  Input:
   -
    PosX: 100
-   PosY: 100
+   PosY: 150
    Alto: 60
    Ancho: 140
    Color: White

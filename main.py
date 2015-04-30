@@ -31,7 +31,7 @@ def main():
     scr_t.start()
     
     #Test
-    #glob.set_variable('venta', 0)
+    #glob.set_variable('venta', 0)a
     
     #while True:
     #    time.sleep(.1)
