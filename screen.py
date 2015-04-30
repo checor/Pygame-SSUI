@@ -592,7 +592,7 @@ class input_handler(object):
             pantallas[self.master].botones[last_selected].set_s(False)
             self.last_selected = button_name
             pantallas[self.master].botones[button_name].set_s(True)
-        elif mov == K_RETURN:
+        elif mov == K_RETURN or mov == 'k*':
             button_name = self.mapa.get_value()
             pantallas[self.master].botones[button_name].do_action()
         #Pantalla matricial
