@@ -592,7 +592,7 @@ class input_handler(object):
             pantallas[self.master].botones[last_selected].set_s(False)
             self.last_selected = button_name
             pantallas[self.master].botones[button_name].set_s(True)
-        elif mov == K_RETURN or mov == 'k*':
+        elif mov == K_RETURN or mov == 'k5':
             button_name = self.mapa.get_value()
             pantallas[self.master].botones[button_name].do_action()
         #Pantalla matricial
@@ -768,7 +768,7 @@ class Screen(object):
         running = True
         #Pantalla Matricial
         if pi == True:
-            kp = RPi_GPIO.keypad(ColumnCount = 4)
+            kp = GPIO.keypad()
             last_key = kp.getKey()
         while running:
             clock.tick(fps)
@@ -794,8 +794,8 @@ class Screen(object):
                         pantallas[Pantalla.pCurrent].key(event.key)
                 #Pantalla matricial
                 if pi == True:
-                    cur_key = kp.get_key()
-                    if cur_key not None and cur_key != last_key:
+                    cur_key = kp.getKey()
+                    if cur_key is not None and cur_key != last_key:
                         pantallas[Pantalla.pCurrent].key('k'+str(cur_key))
                         print "Presionado keypad"
                     last_key=cur_key
