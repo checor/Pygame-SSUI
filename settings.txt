@@ -4,7 +4,7 @@ p1
 I1000
 sS'time'
 p2
-I9632
+I5
 sS'gain'
 p3
 I100

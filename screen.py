@@ -30,7 +30,7 @@ if os.uname()[4].startswith("arm"):
 # Variables para Pygame
 #modificar dependiendo de la pantalla a utilizar
 size = width, height = 320, 240  # Elegimos el tamano de la pantalla
-surface = pygame.display.set_mode(size, 0, 24)  # Pantalla completa a futuro
+surface = pygame.display.set_mode(size,FULLSCREEN,24 )  # Pantalla completa a futuro
 pygame.display.set_caption("Piezo")  # Nombre de la ventana
 fps = 30  # Frames a los cuales se va a trabajar
 
@@ -643,13 +643,13 @@ class input_handler(object):
             last_selected = self.mapa.get_value()
         else:
             return
-        if mov == K_UP or mov == 'k8':
+        if mov == K_UP or mov == 'k2':
             self.mapa.move("Up")
             button_name = self.mapa.get_value()
             pantallas[self.master].botones[last_selected].set_s(False)
             self.last_selected = button_name
             pantallas[self.master].botones[button_name].set_s(True)
-        elif mov == K_DOWN or mov == 'k2':
+        elif mov == K_DOWN or mov == 'k8':
             self.mapa.move("Down")
             button_name = self.mapa.get_value()
             pantallas[self.master].botones[last_selected].set_s(False)
