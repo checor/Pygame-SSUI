@@ -1,8 +1,12 @@
-# Control de piezoelectrico #
+# Control de piezoeléctrico #
 
-Este proyecto, utilizando la librería de SSUI, demuestra el control de un piezoelectrico, para su futuro uso en una máquina de generación de microgotas del departamento de Ingeniería Química del Instituto Tecnológico de Celaya.
+Este proyecto, utilizando la librería de SSUI, demuestra el control de un piezoelectrico de potencia, para su futuro uso en una máquina de generación de microgotas del departamento de Ingeniería Química del Instituto Tecnológico de Celaya.
 
 Este código se utiliza en una tarjeta Raspberry Pi, pero puede funcionar en cualquier PC. Se recomienda utilizar una distribución de Linux para facilitar la instalación de dependencias y librerías.
+
+### Video de demostración ###
+
+http://youtu.be/22PxdOEltjU
 
 ### Funciones ###
 
