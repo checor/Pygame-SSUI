@@ -15,7 +15,7 @@ RUNTIME=30
 HERTZ=20000
 PERIOD=20000 # microseconds
 
-GPIO=4
+GPIO=3
 
 if len(sys.argv) > 1:
    hertz = int(sys.argv[1])
