@@ -43,8 +43,6 @@ for s in range(steps):
    angle = (s * math.pi) / steps
    duty_cycle = int((math.sin(angle) * pulse_width) + 0.5)
 
-   print("s={} dc={}".format(s, duty_cycle))
-
    off_time = pulse_width - duty_cycle
 
    if duty_cycle:

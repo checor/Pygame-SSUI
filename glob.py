@@ -3,7 +3,7 @@
 import Queue, pickle
 
 def pickle_save():
-    a = ["freq", "wave" ,"gain", "time", "sin"]
+    a = ["hertz", "time" ,"period", "wave"]
     b= {}
     for i in a:
         b[i] = get_variable(i)
