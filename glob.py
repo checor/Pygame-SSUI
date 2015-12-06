@@ -3,7 +3,7 @@
 import Queue, pickle
 
 def pickle_save():
-    a = ["freq", "wave" ,"gain", "time"]
+    a = ["freq", "wave" ,"gain", "time", "sin"]
     b= {}
     for i in a:
         b[i] = get_variable(i)
@@ -18,7 +18,7 @@ def get_variable(name):
     if name in dicc:
         return dicc[name]
     else:
-        return None
+        return 0
         
 def change_variable(name, val):
     if name in dicc:

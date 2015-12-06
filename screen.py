@@ -489,6 +489,9 @@ class Boton(Cuadro):
             print self.action_string.split()[1]
             glob.set_variable("wave", self.action_string.split()[1])
             glob.pickle_save()
+        elif action == "spwm_start":
+            wavves.spwm_start(glob.get_variable("hertz"),glob.get_variable("period"),
+                glob.get_variable("time"))
     def set_s(self, state):
         """Este estado se refiere a si se encuentra seleccionado o no. El
         cambio de estado cambia su color."""
@@ -526,6 +529,7 @@ class Input(Cuadro):
             pantallas['piezo.yaml'].awaken()
     def set_input_vars(self, name):
         self.namevalue = name
+        print name + "  ag tmr"
         self.value = int(glob.get_variable(name))
     
     def delete(self):

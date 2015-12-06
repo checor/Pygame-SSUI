@@ -37,7 +37,7 @@ Pantalla:
    Fuente: Monospace
    Alineacion: 0
    Tamano: 18
-   Text: "Control de piezo"
+   Text: "Generacion SPWM"
    Linea: 0
    Nombre: "titulo"
    Color: Black
@@ -108,13 +108,13 @@ Pantalla:
    ValX: 1
    Color_activo: Blue
    Color_inactivo: White
-   Accion: "OpenYAML onda"
+   Accion: "OpenYAML freqsin"
    Redondez: ".4"
    Texto:
     Fuente: Monospace
     Alineacion: -1
     Tamano: 18
-    Text: "Onda"
+    Text: "Freq SIN"
     Linea: 0
     Nombre: "titulo"
     Color: Black
@@ -128,13 +128,13 @@ Pantalla:
    ValX: 1
    Color_activo: Blue
    Color_inactivo: White
-   Accion: "OpenYAML freq"
+   Accion: "OpenYAML period"
    Redondez: ".4"
    Texto:
     Fuente: Monospace
     Alineacion: -1
     Tamano: 18
-    Text: "Freq"
+    Text: "Freq PWM"
     Linea: 0
     Nombre: "titulo7"
     Color: Black
@@ -145,26 +145,6 @@ Pantalla:
    PosX: 15
    PosY: 200
    ValY: 0
-   ValX: 2
-   Color_activo: Blue
-   Color_inactivo: White
-   Accion: "OpenYAML gain"
-   Redondez: ".4"
-   Texto:
-    Fuente: Monospace
-    Alineacion: -1
-    Tamano: 18
-    Text: "Ganancia"
-    Linea: 0
-    Nombre: "titulo8"
-    Color: Black
-   _Nombre: "Boton 3"
-  -
-   Alto: 30
-   Ancho: 100
-   PosX: 180
-   PosY: 200
-   ValY: 1
    ValX: 2
    Color_activo: Blue
    Color_inactivo: White
