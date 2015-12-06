@@ -68,7 +68,7 @@ Pantalla:
    ValY: 0
    Color_activo: Blue
    Color_inactivo: White
-   Accion: "Wavves_start"
+   Accion: "spwm_start"
    Redondez: ".4"
    Texto:
     Fuente: Monospace
