@@ -26,15 +26,17 @@ from screenutils import list_screens, Screen
 import os
 
 s= Screen("session1",True)
-
-def start(wave, freq, gain, time ):
+    
+def stop():
+    global s
+    s.interrupt()
+    
+def spwm_start(hertz, period, runti):
 	global s
 	com = 'python spwm.py ' + str(hertz) + " " + str(period) + " " + str(runti)
 	print com
 	if os.uname()[4].startswith("arm"):
 		s.send_commands(com)
-    
-def stop():
-    global s
-    s.interrupt()
+	else:
+		print "No estamos en rPi kek"
 
