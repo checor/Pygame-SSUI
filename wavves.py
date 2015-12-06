@@ -33,7 +33,8 @@ def stop():
     
 def spwm_start(hertz, period, runti):
 	global s
-	com = 'python spwm.py ' + str(hertz) + " " + str(period) + " " + str(runti)
+	hertz = int(1.0 / hertz * 1000000)
+	com = 'python spwm.py ' + str(period) + " " + str(hertz) + " " + str(runti)
 	print com
 	if os.uname()[4].startswith("arm"):
 		s.send_commands(com)
