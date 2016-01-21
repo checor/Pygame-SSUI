@@ -5,8 +5,7 @@ Este proyecto, utilizando la librería de SSUI, demuestra el diseño y creación
 Este código se utiliza en una tarjeta Raspberry Pi, pero puede funcionar en tarjetas compatibles como Banan Pi o BeagleBoneBlack. Se recomienda utilizar una distribución de Linux basada en Debian para facilitar la instalación de dependencias y librerías.
 
 ### Video de demostración ###
-
-[linkname](https://www.youtube.com/watch?v=GauLbHVjNHk)
+[![Video](http://img.youtube.com/vi/GauLbHVjNHk/0.jpg)](http://www.youtube.com/watch?v=GauLbHVjNHk)
 
 ### Funciones ###
 
