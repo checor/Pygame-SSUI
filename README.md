@@ -6,7 +6,7 @@ Este código se utiliza en una tarjeta Raspberry Pi, pero puede funcionar en tar
 
 ### Video de demostración ###
 
-Próximamente
+[linkname](https://www.youtube.com/watch?v=GauLbHVjNHk)
 
 ### Funciones ###
 
